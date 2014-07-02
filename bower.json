@@ -1,0 +1,27 @@
+{
+  "name": "purescript-spidermonkey-ast",
+  "homepage": "https://github.com/michaelficarra/purescript-spidermonkey-ast",
+  "description": "PureScript bindings for Mozilla's SpiderMonkey AST format",
+  "keywords": [
+    "purescript",
+    "ffi",
+    "bindings",
+    "mozilla",
+    "spidermonkey",
+    "ast",
+    "format"
+  ],
+  "license": "3-Clause BSD",
+  "ignore": [
+    "**/.*",
+    "bower_components",
+    "node_modules",
+    "bower.json",
+    "package.json"
+  ],
+  "dependencies": {
+    "purescript-arrays": "*",
+    "purescript-maybe": "*",
+    "purescript-strings": "*"
+  }
+}
