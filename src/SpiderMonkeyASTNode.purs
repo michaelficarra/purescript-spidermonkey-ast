@@ -110,6 +110,12 @@ unreadMaybe :: Maybe Node -> SMAST
 -- why can't this be point-free?
 unreadMaybe x = maybe unreadNull unread x
 
+
+foreign import unreadArrayExpression
+  "function unreadArrayExpression(node) {\n\
+  \  return {type: 'ArrayExpression', elements: node.elements};\n\
+  \}" :: {elements :: [SMAST]} -> SMAST
+
 foreign import unreadEmptyStatement
   "var unreadEmptyStatement = {type: 'EmptyStatement'};" :: SMAST
 
@@ -129,6 +135,7 @@ foreign import unreadThrowStatement
   \}" :: {argument :: SMAST} -> SMAST
 
 unread :: Node -> SMAST
+unread (ArrayExpression a) = unreadArrayExpression {elements : map unreadMaybe a.elements}
 unread EmptyStatement = unreadEmptyStatement
 unread (Program a) = unreadProgram {body: map unread a.body}
 unread (ReturnStatement a) = unreadReturnStatement {argument: unreadMaybe a.argument}
@@ -136,6 +143,7 @@ unread (ThrowStatement a) = unreadThrowStatement {argument: unread a.argument}
 
 
 instance showNode :: Show Node where
+  show (ArrayExpression a) = "<<ArrayExpression elements:" ++ show a.elements ++ ">>"
   show EmptyStatement = "<<EmptyStatement>>"
   show (Program a) = "<<Program body:" ++ show a.body ++ ">>"
   show (ThrowStatement a) = "<<ThrowStatement argument:" ++ show a.argument ++ ">>"
