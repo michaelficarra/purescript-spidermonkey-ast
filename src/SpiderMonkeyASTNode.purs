@@ -19,7 +19,7 @@ module SpiderMonkeyAST (
 
 
 import Data.Array (map)
-import Data.Maybe (Maybe(..))
+import Data.Maybe (Maybe(..), maybe)
 import Data.String.Regex (Regex(..))
 
 
@@ -98,33 +98,46 @@ foreign import read
   \  switch(node.type) {\n\
   \  case 'EmptyStatement': return Just(EmptyStatement);\n\
   \  case 'Program': return Just(Program({body: map(read)(node.body)}));\n\
+  \  case 'ReturnStatement': return Just(ReturnStatement({argument: node.argument == null ? Nothing : Just(read(node.argument))}));\n\
   \  case 'ThrowStatement': return Just(ThrowStatement({argument: read(node.argument)}));\n\
   \  }\n\
   \  return Nothing;\n\
   \}" :: SMAST -> Maybe Node
 
 
+foreign import unreadNull "var unreadNull = null;" :: SMAST
+unreadMaybe :: Maybe Node -> SMAST
+-- why can't this be point-free?
+unreadMaybe x = maybe unreadNull unread x
+
 foreign import unreadEmptyStatement
   "var unreadEmptyStatement = {type: 'EmptyStatement'};" :: SMAST
 
 foreign import unreadProgram
   "function unreadProgram(node) {\n\
-  \  return {type: 'Program', body: map(unread)(node.body)};\n\
-  \}" :: {body :: [Node]} -> SMAST
+  \  return {type: 'Program', body: node.body};\n\
+  \}" :: {body :: [SMAST]} -> SMAST
+
+foreign import unreadReturnStatement
+  "function unreadReturnStatement(node) {\n\
+  \  return {type: 'ReturnStatement', argument: node.argument};\n\
+  \}" :: {argument :: SMAST} -> SMAST
 
 foreign import unreadThrowStatement
   "function unreadThrowStatement(node) {\n\
-  \  return {type: 'ThrowStatement', argument: unread(node.argument)};\n\
-  \}" :: {argument :: Node} -> SMAST
+  \  return {type: 'ThrowStatement', argument: node.argument};\n\
+  \}" :: {argument :: SMAST} -> SMAST
 
 unread :: Node -> SMAST
 unread EmptyStatement = unreadEmptyStatement
-unread (Program a) = unreadProgram a
-unread (ThrowStatement a) = unreadThrowStatement a
+unread (Program a) = unreadProgram {body: map unread a.body}
+unread (ReturnStatement a) = unreadReturnStatement {argument: unreadMaybe a.argument}
+unread (ThrowStatement a) = unreadThrowStatement {argument: unread a.argument}
 
 
 instance showNode :: Show Node where
   show EmptyStatement = "<<EmptyStatement>>"
   show (Program a) = "<<Program body:" ++ show a.body ++ ">>"
   show (ThrowStatement a) = "<<ThrowStatement argument:" ++ show a.argument ++ ">>"
+  show (ReturnStatement a) = "<<ReturnStatement argument:" ++ show a.argument ++ ">>"
   show _ = "<<unknown>>"
