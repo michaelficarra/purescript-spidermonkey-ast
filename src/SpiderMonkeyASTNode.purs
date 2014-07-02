@@ -1,5 +1,6 @@
 module SpiderMonkeyAST (
   read,
+  readExpr,
   unread,
 
   SMAST(..),
@@ -93,17 +94,28 @@ data Node
 foreign import data SMAST :: *
 
 
-foreign import read
-  "function read(node) {\n\
+foreign import readP
+  "function readP(node) {\n\
   \  switch(node.type) {\n\
-  \  case 'ArrayExpression': return Just(ArrayExpression({elements: [].map.call(node.elements, function(e){ return e == null ? Nothing : Just(read(e)); })}));\n\
-  \  case 'EmptyStatement': return Just(EmptyStatement);\n\
-  \  case 'Program': return Just(Program({body: map(read)(node.body)}));\n\
-  \  case 'ReturnStatement': return Just(ReturnStatement({argument: node.argument == null ? Nothing : Just(read(node.argument))}));\n\
-  \  case 'ThrowStatement': return Just(ThrowStatement({argument: read(node.argument)}));\n\
+  \  case 'ArrayExpression': return ArrayExpression({elements: [].map.call(node.elements, function(e){ return e == null ? Nothing : Just(readP(e)); })});\n\
+  \  case 'EmptyStatement': return EmptyStatement;\n\
+  \  case 'Program': Program({body: [].map.call(node.body, readP);});\n\
+  \  case 'ReturnStatement': return ReturnStatement({argument: node.argument == null ? Nothing : Just(readP(node.argument))});\n\
+  \  case 'ThrowStatement': return ThrowStatement({argument: readP(node.argument)});\n\
   \  }\n\
-  \  return Nothing;\n\
-  \}" :: SMAST -> Maybe Node
+  \  throw new TypeError('Unrecognised node type: ' + JSON.stringify(node.type));\n\
+  \}" :: SMAST -> Node
+
+foreign import isValid "var isValid = require('esvalid').isValid" :: SMAST -> Boolean
+foreign import isValidExpr "var isValidExpr = require('esvalid').isValidExpr" :: SMAST -> Boolean
+
+read :: SMAST -> Maybe Node
+read a | isValid a = Just $ readP a
+read _ = Nothing
+
+readExpr :: SMAST -> Maybe Node
+readExpr a | isValidExpr a = Just $ readP a
+readExpr _ = Nothing
 
 
 foreign import unreadNull "var unreadNull = null;" :: SMAST
