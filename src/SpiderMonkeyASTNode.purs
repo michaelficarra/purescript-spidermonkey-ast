@@ -94,10 +94,25 @@ data Node
 foreign import data SMAST :: *
 
 
+readAssignmentOperator :: String -> AssignmentOperator
+readAssignmentOperator "=" = AssignOp
+readAssignmentOperator "+=" = AssignOpPlus
+readAssignmentOperator "-=" = AssignOpMinus
+readAssignmentOperator "*=" = AssignOpMul
+readAssignmentOperator "/=" = AssignOpDiv
+readAssignmentOperator "%=" = AssignOpMod
+readAssignmentOperator "<<=" = AssignOpLeftShift
+readAssignmentOperator ">>=" = AssignOpRightShift
+readAssignmentOperator ">>>=" = AssignOpUnsignedRightShift
+readAssignmentOperator "|=" = AssignOpBitOr
+readAssignmentOperator "^=" = AssignOpBitXor
+readAssignmentOperator "&=" = AssignOpBitAnd
+
 foreign import readP
   "function readP(node) {\n\
   \  switch(node.type) {\n\
   \  case 'ArrayExpression': return ArrayExpression({elements: [].map.call(node.elements, function(e){ return e == null ? Nothing : Just(readP(e)); })});\n\
+  \  case 'AssignmentExpression': return AssignmentExpression({operator: readAssignmentOperator(node.operator), left: readP(node.left), right: readP(node.right)});\n\
   \  case 'EmptyStatement': return EmptyStatement;\n\
   \  case 'Program': Program({body: [].map.call(node.body, readP);});\n\
   \  case 'ReturnStatement': return ReturnStatement({argument: node.argument == null ? Nothing : Just(readP(node.argument))});\n\
@@ -124,10 +139,30 @@ unreadMaybe :: Maybe Node -> SMAST
 unreadMaybe x = maybe unreadNull unread x
 
 
+unreadAssignmentOperator :: AssignmentOperator -> String
+unreadAssignmentOperator AssignOp = "="
+unreadAssignmentOperator AssignOpPlus = "+="
+unreadAssignmentOperator AssignOpMinus = "-="
+unreadAssignmentOperator AssignOpMul = "*="
+unreadAssignmentOperator AssignOpDiv = "/="
+unreadAssignmentOperator AssignOpMod = "%="
+unreadAssignmentOperator AssignOpLeftShift = "<<="
+unreadAssignmentOperator AssignOpRightShift = ">>="
+unreadAssignmentOperator AssignOpUnsignedRightShift = ">>>="
+unreadAssignmentOperator AssignOpBitOr = "|="
+unreadAssignmentOperator AssignOpBitXor = "^="
+unreadAssignmentOperator AssignOpBitAnd = "&="
+
+
 foreign import unreadArrayExpression
   "function unreadArrayExpression(node) {\n\
   \  return {type: 'ArrayExpression', elements: node.elements};\n\
   \}" :: {elements :: [SMAST]} -> SMAST
+
+foreign import unreadAssignmentExpression
+  "function unreadAssignmentExpression(node) {\n\
+  \  return {type: 'AssignmentExpression', operator: node.operator, left: node.left, right: node.right};\n\
+  \}" :: {operator :: String, left :: SMAST, right :: SMAST} -> SMAST
 
 foreign import unreadEmptyStatement
   "var unreadEmptyStatement = {type: 'EmptyStatement'};" :: SMAST
@@ -148,7 +183,8 @@ foreign import unreadThrowStatement
   \}" :: {argument :: SMAST} -> SMAST
 
 unread :: Node -> SMAST
-unread (ArrayExpression a) = unreadArrayExpression {elements : map unreadMaybe a.elements}
+unread (ArrayExpression a) = unreadArrayExpression {elements: map unreadMaybe a.elements}
+unread (AssignmentExpression a) = unreadAssignmentExpression {operator: unreadAssignmentOperator a.operator, left: unread a.left, right: unread a.right}
 unread EmptyStatement = unreadEmptyStatement
 unread (Program a) = unreadProgram {body: map unread a.body}
 unread (ReturnStatement a) = unreadReturnStatement {argument: unreadMaybe a.argument}
@@ -157,8 +193,13 @@ unread (ThrowStatement a) = unreadThrowStatement {argument: unread a.argument}
 
 instance showNode :: Show Node where
   show (ArrayExpression a) = "<<ArrayExpression elements:" ++ show a.elements ++ ">>"
+  show (AssignmentExpression a) = "<<AssignmentExpression operator:" ++ show a.operator ++ " left:" ++ show a.left ++ " right:" ++ show a.right ++ ">>"
   show EmptyStatement = "<<EmptyStatement>>"
   show (Program a) = "<<Program body:" ++ show a.body ++ ">>"
   show (ThrowStatement a) = "<<ThrowStatement argument:" ++ show a.argument ++ ">>"
   show (ReturnStatement a) = "<<ReturnStatement argument:" ++ show a.argument ++ ">>"
   show _ = "<<unknown>>"
+
+instance showAssignmentOperator :: Show AssignmentOperator where
+  -- point-free style disallowed again?
+  show x = show $ unreadAssignmentOperator x
