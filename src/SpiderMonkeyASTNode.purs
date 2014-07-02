@@ -96,6 +96,7 @@ foreign import data SMAST :: *
 foreign import read
   "function read(node) {\n\
   \  switch(node.type) {\n\
+  \  case 'ArrayExpression': return Just(ArrayExpression({elements: [].map.call(node.elements, function(e){ return e == null ? Nothing : Just(read(e)); })}));\n\
   \  case 'EmptyStatement': return Just(EmptyStatement);\n\
   \  case 'Program': return Just(Program({body: map(read)(node.body)}));\n\
   \  case 'ReturnStatement': return Just(ReturnStatement({argument: node.argument == null ? Nothing : Just(read(node.argument))}));\n\
