@@ -28,9 +28,10 @@ data VarDeclKind = Var | Let | Const
 data ObjectPropertyKind = Init | Get | Set
 type ObjectProperty = {key :: Node, value :: Node, kind :: ObjectPropertyKind}
 
-data UnaryOperator
-  = UnaryOpMinus | UnaryOpPlus | UnaryOpLogicalNot | UnaryOpBitNot
-  | UnaryOpTypeof | UnaryOpVoid | UnaryOpDelete
+data AssignmentOperator
+  = AssignOp | AssignOpPlus | AssignOpMinus | AssignOpMul | AssignOpDiv | AssignOpMod
+  | AssignOpLeftShift | AssignOpRightShift | AssignOpUnsignedRightShift
+  | AssignOpBitOr | AssignOpBitXor | AssignOpBitAnd
 data BinaryOperator
   = BinaryOpEQ | BinaryOpNEQ | BinaryOpStrictEQ | BinaryOpStrictNEQ
   | BinaryOpLT | BinaryOpLTE | BinaryOpGT | BinaryOpGTE
@@ -39,11 +40,10 @@ data BinaryOperator
   | BinaryOpBitOr | BinaryOpBitXor | BinaryOpBitAnd
   | BinaryOpIn | BinaryOpInstanceof
 data LogicalOperator = LogicalOpOr | LogicalOpAnd
+data UnaryOperator
+  = UnaryOpMinus | UnaryOpPlus | UnaryOpLogicalNot | UnaryOpBitNot
+  | UnaryOpTypeof | UnaryOpVoid | UnaryOpDelete
 data UpdateOperator = UpdateOpIncrement | UpdateOpDecrement
-data AssignmentOperator
-  = AssignOp | AssignOpPlus | AssignOpMinus | AssignOpMul | AssignOpDiv | AssignOpMod
-  | AssignOpLeftShift | AssignOpRightShift | AssignOpUnsignedRightShift
-  | AssignOpBitOr | AssignOpBitXor | AssignOpBitAnd
 
 data Node
   = ArrayExpression {elements :: [Maybe Node]}
@@ -108,11 +108,34 @@ readAssignmentOperator "|=" = AssignOpBitOr
 readAssignmentOperator "^=" = AssignOpBitXor
 readAssignmentOperator "&=" = AssignOpBitAnd
 
+readBinaryOperator "==" = BinaryOpEQ
+readBinaryOperator "!=" = BinaryOpNEQ
+readBinaryOperator "===" = BinaryOpStrictEQ
+readBinaryOperator "!==" = BinaryOpStrictNEQ
+readBinaryOperator "<" = BinaryOpLT
+readBinaryOperator "<=" = BinaryOpLTE
+readBinaryOperator ">" = BinaryOpGT
+readBinaryOperator ">=" = BinaryOpGTE
+readBinaryOperator "<<" = BinaryOpLeftShift
+readBinaryOperator ">>" = BinaryOpRightShift
+readBinaryOperator ">>>" = BinaryOpUnsignedRightShift
+readBinaryOperator "+" = BinaryOpPlus
+readBinaryOperator "-" = BinaryOpMinus
+readBinaryOperator "*" = BinaryOpMul
+readBinaryOperator "/" = BinaryOpDiv
+readBinaryOperator "%" = BinaryOpMod
+readBinaryOperator "|" = BinaryOpBitOr
+readBinaryOperator "^" = BinaryOpBitXor
+readBinaryOperator "&" = BinaryOpBitAnd
+readBinaryOperator "in" = BinaryOpIn
+readBinaryOperator "instanceof" = BinaryOpInstanceof
+
 foreign import readP
   "function readP(node) {\n\
   \  switch(node.type) {\n\
   \  case 'ArrayExpression': return ArrayExpression({elements: [].map.call(node.elements, function(e){ return e == null ? Nothing : Just(readP(e)); })});\n\
   \  case 'AssignmentExpression': return AssignmentExpression({operator: readAssignmentOperator(node.operator), left: readP(node.left), right: readP(node.right)});\n\
+  \  case 'BinaryExpression': return BinaryExpression({operator: readBinaryOperator(node.operator), left: readP(node.left), right: readP(node.right)});\n\
   \  case 'EmptyStatement': return EmptyStatement;\n\
   \  case 'Program': Program({body: [].map.call(node.body, readP);});\n\
   \  case 'ReturnStatement': return ReturnStatement({argument: node.argument == null ? Nothing : Just(readP(node.argument))});\n\
@@ -153,6 +176,28 @@ unreadAssignmentOperator AssignOpBitOr = "|="
 unreadAssignmentOperator AssignOpBitXor = "^="
 unreadAssignmentOperator AssignOpBitAnd = "&="
 
+unreadBinaryOperator BinaryOpEQ = "=="
+unreadBinaryOperator BinaryOpNEQ = "!="
+unreadBinaryOperator BinaryOpStrictEQ = "==="
+unreadBinaryOperator BinaryOpStrictNEQ = "!=="
+unreadBinaryOperator BinaryOpLT = "<"
+unreadBinaryOperator BinaryOpLTE = "<="
+unreadBinaryOperator BinaryOpGT = ">"
+unreadBinaryOperator BinaryOpGTE = ">="
+unreadBinaryOperator BinaryOpLeftShift = "<<"
+unreadBinaryOperator BinaryOpRightShift = ">>"
+unreadBinaryOperator BinaryOpUnsignedRightShift = ">>>"
+unreadBinaryOperator BinaryOpPlus = "+"
+unreadBinaryOperator BinaryOpMinus = "-"
+unreadBinaryOperator BinaryOpMul = "*"
+unreadBinaryOperator BinaryOpDiv = "/"
+unreadBinaryOperator BinaryOpMod = "%"
+unreadBinaryOperator BinaryOpBitOr = "|"
+unreadBinaryOperator BinaryOpBitXor = "^"
+unreadBinaryOperator BinaryOpBitAnd = "&"
+unreadBinaryOperator BinaryOpIn = "in"
+unreadBinaryOperator BinaryOpInstanceof = "instanceof"
+
 
 foreign import unreadArrayExpression
   "function unreadArrayExpression(node) {\n\
@@ -162,6 +207,11 @@ foreign import unreadArrayExpression
 foreign import unreadAssignmentExpression
   "function unreadAssignmentExpression(node) {\n\
   \  return {type: 'AssignmentExpression', operator: node.operator, left: node.left, right: node.right};\n\
+  \}" :: {operator :: String, left :: SMAST, right :: SMAST} -> SMAST
+
+foreign import unreadBinaryExpression
+  "function unreadBinaryExpression(node) {\n\
+  \  return {type: 'BinaryExpression', operator: node.operator, left: node.left, right: node.right};\n\
   \}" :: {operator :: String, left :: SMAST, right :: SMAST} -> SMAST
 
 foreign import unreadEmptyStatement
@@ -185,6 +235,7 @@ foreign import unreadThrowStatement
 unread :: Node -> SMAST
 unread (ArrayExpression a) = unreadArrayExpression {elements: map unreadMaybe a.elements}
 unread (AssignmentExpression a) = unreadAssignmentExpression {operator: unreadAssignmentOperator a.operator, left: unread a.left, right: unread a.right}
+unread (BinaryExpression a) = unreadBinaryExpression {operator: unreadBinaryOperator a.operator, left: unread a.left, right: unread a.right}
 unread EmptyStatement = unreadEmptyStatement
 unread (Program a) = unreadProgram {body: map unread a.body}
 unread (ReturnStatement a) = unreadReturnStatement {argument: unreadMaybe a.argument}
@@ -194,6 +245,7 @@ unread (ThrowStatement a) = unreadThrowStatement {argument: unread a.argument}
 instance showNode :: Show Node where
   show (ArrayExpression a) = "<<ArrayExpression elements:" ++ show a.elements ++ ">>"
   show (AssignmentExpression a) = "<<AssignmentExpression operator:" ++ show a.operator ++ " left:" ++ show a.left ++ " right:" ++ show a.right ++ ">>"
+  show (BinaryExpression a) = "<<BinaryExpression operator:" ++ show a.operator ++ " left:" ++ show a.left ++ " right:" ++ show a.right ++ ">>"
   show EmptyStatement = "<<EmptyStatement>>"
   show (Program a) = "<<Program body:" ++ show a.body ++ ">>"
   show (ThrowStatement a) = "<<ThrowStatement argument:" ++ show a.argument ++ ">>"
@@ -201,5 +253,7 @@ instance showNode :: Show Node where
   show _ = "<<unknown>>"
 
 instance showAssignmentOperator :: Show AssignmentOperator where
-  -- point-free style disallowed again?
   show x = show $ unreadAssignmentOperator x
+
+instance showBinaryOperator :: Show BinaryOperator where
+  show x = show $ unreadBinaryOperator x
