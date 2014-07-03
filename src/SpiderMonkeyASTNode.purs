@@ -130,6 +130,20 @@ readBinaryOperator "&" = BinaryOpBitAnd
 readBinaryOperator "in" = BinaryOpIn
 readBinaryOperator "instanceof" = BinaryOpInstanceof
 
+readLogicalOperator "||" = LogicalOpOr
+readLogicalOperator "&&" = LogicalOpAnd
+
+readUnaryOperator "-" = UnaryOpMinus
+readUnaryOperator "+" = UnaryOpPlus
+readUnaryOperator "!" = UnaryOpLogicalNot
+readUnaryOperator "~" = UnaryOpBitNot
+readUnaryOperator "typeof" = UnaryOpTypeof
+readUnaryOperator "void" = UnaryOpVoid
+readUnaryOperator "delete" = UnaryOpDelete
+
+readUpdateOperator "++" = UpdateOpIncrement
+readUpdateOperator "--" = UpdateOpDecrement
+
 foreign import readP
   "function readP(node) {\n\
   \  switch(node.type) {\n\
@@ -137,9 +151,12 @@ foreign import readP
   \  case 'AssignmentExpression': return AssignmentExpression({operator: readAssignmentOperator(node.operator), left: readP(node.left), right: readP(node.right)});\n\
   \  case 'BinaryExpression': return BinaryExpression({operator: readBinaryOperator(node.operator), left: readP(node.left), right: readP(node.right)});\n\
   \  case 'EmptyStatement': return EmptyStatement;\n\
+  \  case 'LogicalExpression': return LogicalExpression({operator: readLogicalOperator(node.operator), left: readP(node.left), right: readP(node.right)});\n\
   \  case 'Program': Program({body: [].map.call(node.body, readP);});\n\
   \  case 'ReturnStatement': return ReturnStatement({argument: node.argument == null ? Nothing : Just(readP(node.argument))});\n\
   \  case 'ThrowStatement': return ThrowStatement({argument: readP(node.argument)});\n\
+  \  case 'UnaryExpression': return UnaryExpression({operator: readUnaryOperator(node.operator), argument: readP(node.argument)});\n\
+  \  case 'UpdateExpression': return UpdateExpression({operator: readUpdateOperator(node.operator), argument: readP(node.argument), prefix: node.prefix});\n\
   \  }\n\
   \  throw new TypeError('Unrecognised node type: ' + JSON.stringify(node.type));\n\
   \}" :: SMAST -> Node
@@ -198,6 +215,20 @@ unreadBinaryOperator BinaryOpBitAnd = "&"
 unreadBinaryOperator BinaryOpIn = "in"
 unreadBinaryOperator BinaryOpInstanceof = "instanceof"
 
+unreadLogicalOperator LogicalOpOr = "||"
+unreadLogicalOperator LogicalOpAnd = "&&"
+
+unreadUnaryOperator UnaryOpMinus = "-"
+unreadUnaryOperator UnaryOpPlus = "+"
+unreadUnaryOperator UnaryOpLogicalNot = "!"
+unreadUnaryOperator UnaryOpBitNot = "~"
+unreadUnaryOperator UnaryOpTypeof = "typeof"
+unreadUnaryOperator UnaryOpVoid = "void"
+unreadUnaryOperator UnaryOpDelete = "delete"
+
+unreadUpdateOperator UpdateOpIncrement = "++"
+unreadUpdateOperator UpdateOpDecrement = "--"
+
 
 foreign import unreadArrayExpression
   "function unreadArrayExpression(node) {\n\
@@ -217,6 +248,11 @@ foreign import unreadBinaryExpression
 foreign import unreadEmptyStatement
   "var unreadEmptyStatement = {type: 'EmptyStatement'};" :: SMAST
 
+foreign import unreadLogicalExpression
+  "function unreadLogicalExpression(node) {\n\
+  \  return {type: 'LogicalExpression', operator: node.operator, left: node.left, right: node.right};\n\
+  \}" :: {operator :: String, left :: SMAST, right :: SMAST} -> SMAST
+
 foreign import unreadProgram
   "function unreadProgram(node) {\n\
   \  return {type: 'Program', body: node.body};\n\
@@ -232,14 +268,27 @@ foreign import unreadThrowStatement
   \  return {type: 'ThrowStatement', argument: node.argument};\n\
   \}" :: {argument :: SMAST} -> SMAST
 
+foreign import unreadUnaryExpression
+  "function unreadUnaryExpression(node) {\n\
+  \  return {type: 'UnaryExpression', operator: node.operator, argument: node.argument};\n\
+  \}" :: {operator :: String, argument :: SMAST} -> SMAST
+
+foreign import unreadUpdateExpression
+  "function unreadUpdateExpression(node) {\n\
+  \  return {type: 'UpdateExpression', operator: node.operator, argument: node.argument, prefix: node.prefix};\n\
+  \}" :: {operator :: String, argument :: SMAST, prefix :: Boolean} -> SMAST
+
 unread :: Node -> SMAST
 unread (ArrayExpression a) = unreadArrayExpression {elements: map unreadMaybe a.elements}
 unread (AssignmentExpression a) = unreadAssignmentExpression {operator: unreadAssignmentOperator a.operator, left: unread a.left, right: unread a.right}
 unread (BinaryExpression a) = unreadBinaryExpression {operator: unreadBinaryOperator a.operator, left: unread a.left, right: unread a.right}
 unread EmptyStatement = unreadEmptyStatement
+unread (LogicalExpression a) = unreadLogicalExpression {operator: unreadLogicalOperator a.operator, left: unread a.left, right: unread a.right}
 unread (Program a) = unreadProgram {body: map unread a.body}
 unread (ReturnStatement a) = unreadReturnStatement {argument: unreadMaybe a.argument}
 unread (ThrowStatement a) = unreadThrowStatement {argument: unread a.argument}
+unread (UnaryExpression a) = unreadUnaryExpression {operator: unreadUnaryOperator a.operator, argument: unread a.argument}
+unread (UpdateExpression a) = unreadUpdateExpression {operator: unreadUpdateOperator a.operator, argument: unread a.argument, prefix: a.prefix}
 
 
 instance showNode :: Show Node where
@@ -247,13 +296,21 @@ instance showNode :: Show Node where
   show (AssignmentExpression a) = "<<AssignmentExpression operator:" ++ show a.operator ++ " left:" ++ show a.left ++ " right:" ++ show a.right ++ ">>"
   show (BinaryExpression a) = "<<BinaryExpression operator:" ++ show a.operator ++ " left:" ++ show a.left ++ " right:" ++ show a.right ++ ">>"
   show EmptyStatement = "<<EmptyStatement>>"
+  show (LogicalExpression a) = "<<LogicalExpression operator:" ++ show a.operator ++ " left:" ++ show a.left ++ " right:" ++ show a.right ++ ">>"
   show (Program a) = "<<Program body:" ++ show a.body ++ ">>"
-  show (ThrowStatement a) = "<<ThrowStatement argument:" ++ show a.argument ++ ">>"
   show (ReturnStatement a) = "<<ReturnStatement argument:" ++ show a.argument ++ ">>"
+  show (ThrowStatement a) = "<<ThrowStatement argument:" ++ show a.argument ++ ">>"
+  show (UnaryExpression a) = "<<UnaryExpression operator:" ++ show a.operator ++ " argument:" ++ show a.argument ++ ">>"
+  show (UpdateExpression a) = "<<UpdateExpression operator:" ++ show a.operator ++ " argument:" ++ show a.argument ++ " prefix:" ++ show a.prefix ++ ">>"
   show _ = "<<unknown>>"
 
 instance showAssignmentOperator :: Show AssignmentOperator where
   show x = show $ unreadAssignmentOperator x
-
 instance showBinaryOperator :: Show BinaryOperator where
   show x = show $ unreadBinaryOperator x
+instance showLogicalOperator :: Show LogicalOperator where
+  show x = show $ unreadLogicalOperator x
+instance showUnaryOperator :: Show UnaryOperator where
+  show x = show $ unreadUnaryOperator x
+instance showUpdateOperator :: Show UpdateOperator where
+  show x = show $ unreadUpdateOperator x
