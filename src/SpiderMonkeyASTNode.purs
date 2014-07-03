@@ -150,6 +150,9 @@ foreign import readP
   \  case 'ArrayExpression': return ArrayExpression({elements: [].map.call(node.elements, function(e){ return e == null ? Nothing : Just(readP(e)); })});\n\
   \  case 'AssignmentExpression': return AssignmentExpression({operator: readAssignmentOperator(node.operator), left: readP(node.left), right: readP(node.right)});\n\
   \  case 'BinaryExpression': return BinaryExpression({operator: readBinaryOperator(node.operator), left: readP(node.left), right: readP(node.right)});\n\
+  \  case 'BlockStatement': BlockStatement({body: [].map.call(node.body, readP);});\n\
+  \  case 'BreakStatement': BreakStatement({label: node.label == null ? Nothing : Just(readP(node.label));});\n\
+  \  case 'ContinueStatement': ContinueStatement({label: node.label == null ? Nothing : Just(readP(node.label));});\n\
   \  case 'EmptyStatement': return EmptyStatement;\n\
   \  case 'LogicalExpression': return LogicalExpression({operator: readLogicalOperator(node.operator), left: readP(node.left), right: readP(node.right)});\n\
   \  case 'Program': Program({body: [].map.call(node.body, readP);});\n\
@@ -245,6 +248,21 @@ foreign import unreadBinaryExpression
   \  return {type: 'BinaryExpression', operator: node.operator, left: node.left, right: node.right};\n\
   \}" :: {operator :: String, left :: SMAST, right :: SMAST} -> SMAST
 
+foreign import unreadBlockStatement
+  "function unreadBlockStatement(node) {\n\
+  \  return {type: 'BlockStatement', body: node.body};\n\
+  \}" :: {body :: [SMAST]} -> SMAST
+
+foreign import unreadBreakStatement
+  "function unreadBreakStatement(node) {\n\
+  \  return {type: 'BreakStatement', label: node.label};\n\
+  \}" :: {label :: SMAST} -> SMAST
+
+foreign import unreadContinueStatement
+  "function unreadContinueStatement(node) {\n\
+  \  return {type: 'ContinueStatement', label: node.label};\n\
+  \}" :: {label :: SMAST} -> SMAST
+
 foreign import unreadEmptyStatement
   "var unreadEmptyStatement = {type: 'EmptyStatement'};" :: SMAST
 
@@ -282,6 +300,9 @@ unread :: Node -> SMAST
 unread (ArrayExpression a) = unreadArrayExpression {elements: map unreadMaybe a.elements}
 unread (AssignmentExpression a) = unreadAssignmentExpression {operator: unreadAssignmentOperator a.operator, left: unread a.left, right: unread a.right}
 unread (BinaryExpression a) = unreadBinaryExpression {operator: unreadBinaryOperator a.operator, left: unread a.left, right: unread a.right}
+unread (BlockStatement a) = unreadBlockStatement {body: map unread a.body}
+unread (BreakStatement a) = unreadBreakStatement {label: unreadMaybe a.label}
+unread (ContinueStatement a) = unreadContinueStatement {label: unreadMaybe a.label}
 unread EmptyStatement = unreadEmptyStatement
 unread (LogicalExpression a) = unreadLogicalExpression {operator: unreadLogicalOperator a.operator, left: unread a.left, right: unread a.right}
 unread (Program a) = unreadProgram {body: map unread a.body}
@@ -295,6 +316,9 @@ instance showNode :: Show Node where
   show (ArrayExpression a) = "<<ArrayExpression elements:" ++ show a.elements ++ ">>"
   show (AssignmentExpression a) = "<<AssignmentExpression operator:" ++ show a.operator ++ " left:" ++ show a.left ++ " right:" ++ show a.right ++ ">>"
   show (BinaryExpression a) = "<<BinaryExpression operator:" ++ show a.operator ++ " left:" ++ show a.left ++ " right:" ++ show a.right ++ ">>"
+  show (BlockStatement a) = "<<BlockStatement body:" ++ show a.body ++ ">>"
+  show (BreakStatement a) = "<<BreakStatement label:" ++ show a.label ++ ">>"
+  show (ContinueStatement a) = "<<ContinueStatement label:" ++ show a.label ++ ">>"
   show EmptyStatement = "<<EmptyStatement>>"
   show (LogicalExpression a) = "<<LogicalExpression operator:" ++ show a.operator ++ " left:" ++ show a.left ++ " right:" ++ show a.right ++ ">>"
   show (Program a) = "<<Program body:" ++ show a.body ++ ">>"
