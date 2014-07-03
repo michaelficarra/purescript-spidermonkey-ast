@@ -151,10 +151,12 @@ foreign import readP
   \  case 'AssignmentExpression': return AssignmentExpression({operator: readAssignmentOperator(node.operator), left: readP(node.left), right: readP(node.right)});\n\
   \  case 'BinaryExpression': return BinaryExpression({operator: readBinaryOperator(node.operator), left: readP(node.left), right: readP(node.right)});\n\
   \  case 'BlockStatement': BlockStatement({body: [].map.call(node.body, readP);});\n\
-  \  case 'BreakStatement': BreakStatement({label: node.label == null ? Nothing : Just(readP(node.label));});\n\
+  \  case 'BreakStatement': BreakStatement({label: node.label == null ? Nothing : Just(readP(node.label))});\n\
+  \  case 'CallExpression': CallExpression({callee: readP(node.callee), arguments: [].map.call(node.arguments)});\n\
   \  case 'ContinueStatement': ContinueStatement({label: node.label == null ? Nothing : Just(readP(node.label));});\n\
   \  case 'EmptyStatement': return EmptyStatement;\n\
   \  case 'LogicalExpression': return LogicalExpression({operator: readLogicalOperator(node.operator), left: readP(node.left), right: readP(node.right)});\n\
+  \  case 'NewExpression': NewExpression({callee: readP(node.callee), arguments: [].map.call(node.arguments)});\n\
   \  case 'Program': Program({body: [].map.call(node.body, readP);});\n\
   \  case 'ReturnStatement': return ReturnStatement({argument: node.argument == null ? Nothing : Just(readP(node.argument))});\n\
   \  case 'ThrowStatement': return ThrowStatement({argument: readP(node.argument)});\n\
@@ -258,6 +260,11 @@ foreign import unreadBreakStatement
   \  return {type: 'BreakStatement', label: node.label};\n\
   \}" :: {label :: SMAST} -> SMAST
 
+foreign import unreadCallExpression
+  "function unreadCallExpression(node) {\n\
+  \  return {type: 'CallExpression', callee: node.callee, arguments: node.arguments};\n\
+  \}" :: {callee :: SMAST, arguments :: [SMAST]} -> SMAST
+
 foreign import unreadContinueStatement
   "function unreadContinueStatement(node) {\n\
   \  return {type: 'ContinueStatement', label: node.label};\n\
@@ -270,6 +277,11 @@ foreign import unreadLogicalExpression
   "function unreadLogicalExpression(node) {\n\
   \  return {type: 'LogicalExpression', operator: node.operator, left: node.left, right: node.right};\n\
   \}" :: {operator :: String, left :: SMAST, right :: SMAST} -> SMAST
+
+foreign import unreadNewExpression
+  "function unreadNewExpression(node) {\n\
+  \  return {type: 'NewExpression', callee: node.callee, arguments: node.arguments};\n\
+  \}" :: {callee :: SMAST, arguments :: [SMAST]} -> SMAST
 
 foreign import unreadProgram
   "function unreadProgram(node) {\n\
@@ -302,9 +314,11 @@ unread (AssignmentExpression a) = unreadAssignmentExpression {operator: unreadAs
 unread (BinaryExpression a) = unreadBinaryExpression {operator: unreadBinaryOperator a.operator, left: unread a.left, right: unread a.right}
 unread (BlockStatement a) = unreadBlockStatement {body: map unread a.body}
 unread (BreakStatement a) = unreadBreakStatement {label: unreadMaybe a.label}
+unread (CallExpression a) = unreadCallExpression {callee: unread a.callee, arguments: map unread a.arguments}
 unread (ContinueStatement a) = unreadContinueStatement {label: unreadMaybe a.label}
 unread EmptyStatement = unreadEmptyStatement
 unread (LogicalExpression a) = unreadLogicalExpression {operator: unreadLogicalOperator a.operator, left: unread a.left, right: unread a.right}
+unread (NewExpression a) = unreadNewExpression {callee: unread a.callee, arguments: map unread a.arguments}
 unread (Program a) = unreadProgram {body: map unread a.body}
 unread (ReturnStatement a) = unreadReturnStatement {argument: unreadMaybe a.argument}
 unread (ThrowStatement a) = unreadThrowStatement {argument: unread a.argument}
@@ -318,9 +332,11 @@ instance showNode :: Show Node where
   show (BinaryExpression a) = "<<BinaryExpression operator:" ++ show a.operator ++ " left:" ++ show a.left ++ " right:" ++ show a.right ++ ">>"
   show (BlockStatement a) = "<<BlockStatement body:" ++ show a.body ++ ">>"
   show (BreakStatement a) = "<<BreakStatement label:" ++ show a.label ++ ">>"
+  show (CallExpression a) = "<<CallExpression callee:" ++ show a.callee ++ " arguments:" ++ show a.arguments ++ ">>"
   show (ContinueStatement a) = "<<ContinueStatement label:" ++ show a.label ++ ">>"
   show EmptyStatement = "<<EmptyStatement>>"
   show (LogicalExpression a) = "<<LogicalExpression operator:" ++ show a.operator ++ " left:" ++ show a.left ++ " right:" ++ show a.right ++ ">>"
+  show (NewExpression a) = "<<NewExpression callee:" ++ show a.callee ++ " arguments:" ++ show a.arguments ++ ">>"
   show (Program a) = "<<Program body:" ++ show a.body ++ ">>"
   show (ReturnStatement a) = "<<ReturnStatement argument:" ++ show a.argument ++ ">>"
   show (ThrowStatement a) = "<<ThrowStatement argument:" ++ show a.argument ++ ">>"
