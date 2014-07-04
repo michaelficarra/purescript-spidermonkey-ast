@@ -150,15 +150,15 @@ foreign import readP
   \  case 'ArrayExpression': return ArrayExpression({elements: [].map.call(node.elements, function(e){ return e == null ? Nothing : Just(readP(e)); })});\n\
   \  case 'AssignmentExpression': return AssignmentExpression({operator: readAssignmentOperator(node.operator), left: readP(node.left), right: readP(node.right)});\n\
   \  case 'BinaryExpression': return BinaryExpression({operator: readBinaryOperator(node.operator), left: readP(node.left), right: readP(node.right)});\n\
-  \  case 'BlockStatement': BlockStatement({body: [].map.call(node.body, readP);});\n\
-  \  case 'BreakStatement': BreakStatement({label: node.label == null ? Nothing : Just(readP(node.label))});\n\
-  \  case 'CallExpression': CallExpression({callee: readP(node.callee), arguments: [].map.call(node.arguments)});\n\
-  \  case 'ConditionalExpression': ConditionalExpression({test: readP(node.test), alternate: readP(node.alternate), consequent: readP(node.consequent)});\n\
-  \  case 'ContinueStatement': ContinueStatement({label: node.label == null ? Nothing : Just(readP(node.label));});\n\
+  \  case 'BlockStatement': return BlockStatement({body: [].map.call(node.body, readP);});\n\
+  \  case 'BreakStatement': return BreakStatement({label: node.label == null ? Nothing : Just(readP(node.label))});\n\
+  \  case 'CallExpression': return CallExpression({callee: readP(node.callee), arguments: [].map.call(node.arguments)});\n\
+  \  case 'ConditionalExpression': return ConditionalExpression({test: readP(node.test), alternate: readP(node.alternate), consequent: readP(node.consequent)});\n\
+  \  case 'ContinueStatement': return ContinueStatement({label: node.label == null ? Nothing : Just(readP(node.label));});\n\
   \  case 'EmptyStatement': return EmptyStatement;\n\
   \  case 'LogicalExpression': return LogicalExpression({operator: readLogicalOperator(node.operator), left: readP(node.left), right: readP(node.right)});\n\
-  \  case 'NewExpression': NewExpression({callee: readP(node.callee), arguments: [].map.call(node.arguments)});\n\
-  \  case 'Program': Program({body: [].map.call(node.body, readP);});\n\
+  \  case 'NewExpression': return NewExpression({callee: readP(node.callee), arguments: [].map.call(node.arguments)});\n\
+  \  case 'Program': return Program({body: [].map.call(node.body, readP);});\n\
   \  case 'ReturnStatement': return ReturnStatement({argument: node.argument == null ? Nothing : Just(readP(node.argument))});\n\
   \  case 'ThrowStatement': return ThrowStatement({argument: readP(node.argument)});\n\
   \  case 'UnaryExpression': return UnaryExpression({operator: readUnaryOperator(node.operator), argument: readP(node.argument)});\n\
