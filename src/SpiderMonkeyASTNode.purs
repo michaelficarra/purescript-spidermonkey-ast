@@ -153,6 +153,7 @@ foreign import readP
   \  case 'BlockStatement': return BlockStatement({body: [].map.call(node.body, readP);});\n\
   \  case 'BreakStatement': return BreakStatement({label: node.label == null ? Nothing : Just(readP(node.label))});\n\
   \  case 'CallExpression': return CallExpression({callee: readP(node.callee), arguments: [].map.call(node.arguments)});\n\
+  \  case 'CatchClause': return CatchClause({param: readP(node.param), body: readP(node.body)});\n\
   \  case 'ConditionalExpression': return ConditionalExpression({test: readP(node.test), alternate: readP(node.alternate), consequent: readP(node.consequent)});\n\
   \  case 'ContinueStatement': return ContinueStatement({label: node.label == null ? Nothing : Just(readP(node.label));});\n\
   \  case 'EmptyStatement': return EmptyStatement;\n\
@@ -266,6 +267,11 @@ foreign import unreadCallExpression
   \  return {type: 'CallExpression', callee: node.callee, arguments: node.arguments};\n\
   \}" :: {callee :: SMAST, arguments :: [SMAST]} -> SMAST
 
+foreign import unreadCatchClause
+  "function unreadCatchClause(node) {\n\
+  \  return {type: 'CatchClause', param: node.param, body: node.body};\n\
+  \}" :: {param :: SMAST, body :: SMAST} -> SMAST
+
 foreign import unreadConditionalExpression
   "function unreadConditionalExpression(node) {\n\
   \  return {type: 'ConditionalExpression', test: node.test, alternate: node.alternate, consequent, node.consequent};\n\
@@ -321,6 +327,7 @@ unread (BinaryExpression a) = unreadBinaryExpression {operator: unreadBinaryOper
 unread (BlockStatement a) = unreadBlockStatement {body: map unread a.body}
 unread (BreakStatement a) = unreadBreakStatement {label: unreadMaybe a.label}
 unread (CallExpression a) = unreadCallExpression {callee: unread a.callee, arguments: map unread a.arguments}
+unread (CatchClause a) = unreadCatchClause {param: unread a.param, body: unread a.body}
 unread (ConditionalExpression a) = unreadConditionalExpression {test: unread a.test, alternate: unread a.alternate, consequent: unread a.consequent}
 unread (ContinueStatement a) = unreadContinueStatement {label: unreadMaybe a.label}
 unread EmptyStatement = unreadEmptyStatement
@@ -340,6 +347,7 @@ instance showNode :: Show Node where
   show (BlockStatement a) = "<<BlockStatement body:" ++ show a.body ++ ">>"
   show (BreakStatement a) = "<<BreakStatement label:" ++ show a.label ++ ">>"
   show (CallExpression a) = "<<CallExpression callee:" ++ show a.callee ++ " arguments:" ++ show a.arguments ++ ">>"
+  show (CatchClause a) = "<<CatchClause param:" ++ show a.param ++ " body:" ++ show a.body ++ ">>"
   show (ConditionalExpression a) = "<<ConditionalExpression test:" ++ show a.test ++ " alternate:" ++ show a.alternate ++ " consequent:" ++ show a.consequent ++ ">>"
   show (ContinueStatement a) = "<<ContinueStatement label:" ++ show a.label ++ ">>"
   show EmptyStatement = "<<EmptyStatement>>"
