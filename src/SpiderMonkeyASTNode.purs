@@ -153,6 +153,7 @@ foreign import readP
   \  case 'BlockStatement': BlockStatement({body: [].map.call(node.body, readP);});\n\
   \  case 'BreakStatement': BreakStatement({label: node.label == null ? Nothing : Just(readP(node.label))});\n\
   \  case 'CallExpression': CallExpression({callee: readP(node.callee), arguments: [].map.call(node.arguments)});\n\
+  \  case 'ConditionalExpression': ConditionalExpression({test: readP(node.test), alternate: readP(node.alternate), consequent: readP(node.consequent)});\n\
   \  case 'ContinueStatement': ContinueStatement({label: node.label == null ? Nothing : Just(readP(node.label));});\n\
   \  case 'EmptyStatement': return EmptyStatement;\n\
   \  case 'LogicalExpression': return LogicalExpression({operator: readLogicalOperator(node.operator), left: readP(node.left), right: readP(node.right)});\n\
@@ -265,6 +266,11 @@ foreign import unreadCallExpression
   \  return {type: 'CallExpression', callee: node.callee, arguments: node.arguments};\n\
   \}" :: {callee :: SMAST, arguments :: [SMAST]} -> SMAST
 
+foreign import unreadConditionalExpression
+  "function unreadConditionalExpression(node) {\n\
+  \  return {type: 'ConditionalExpression', test: node.test, alternate: node.alternate, consequent, node.consequent};\n\
+  \}" :: {test :: SMAST, alternate :: SMAST, consequent :: SMAST} -> SMAST
+
 foreign import unreadContinueStatement
   "function unreadContinueStatement(node) {\n\
   \  return {type: 'ContinueStatement', label: node.label};\n\
@@ -315,6 +321,7 @@ unread (BinaryExpression a) = unreadBinaryExpression {operator: unreadBinaryOper
 unread (BlockStatement a) = unreadBlockStatement {body: map unread a.body}
 unread (BreakStatement a) = unreadBreakStatement {label: unreadMaybe a.label}
 unread (CallExpression a) = unreadCallExpression {callee: unread a.callee, arguments: map unread a.arguments}
+unread (ConditionalExpression a) = unreadConditionalExpression {test: unread a.test, alternate: unread a.alternate, consequent: unread a.consequent}
 unread (ContinueStatement a) = unreadContinueStatement {label: unreadMaybe a.label}
 unread EmptyStatement = unreadEmptyStatement
 unread (LogicalExpression a) = unreadLogicalExpression {operator: unreadLogicalOperator a.operator, left: unread a.left, right: unread a.right}
@@ -333,6 +340,7 @@ instance showNode :: Show Node where
   show (BlockStatement a) = "<<BlockStatement body:" ++ show a.body ++ ">>"
   show (BreakStatement a) = "<<BreakStatement label:" ++ show a.label ++ ">>"
   show (CallExpression a) = "<<CallExpression callee:" ++ show a.callee ++ " arguments:" ++ show a.arguments ++ ">>"
+  show (ConditionalExpression a) = "<<ConditionalExpression test:" ++ show a.test ++ " alternate:" ++ show a.alternate ++ " consequent:" ++ show a.consequent ++ ">>"
   show (ContinueStatement a) = "<<ContinueStatement label:" ++ show a.label ++ ">>"
   show EmptyStatement = "<<EmptyStatement>>"
   show (LogicalExpression a) = "<<LogicalExpression operator:" ++ show a.operator ++ " left:" ++ show a.left ++ " right:" ++ show a.right ++ ">>"
