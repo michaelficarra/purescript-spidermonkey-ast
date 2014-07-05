@@ -159,6 +159,14 @@ foreign import readP
   \  case 'DebuggerStatement': return DebuggerStatement;\n\
   \  case 'DoWhileStatement': return DoWhileStatement({body: readP(node.body), test: readP(node.test)});\n\
   \  case 'EmptyStatement': return EmptyStatement;\n\
+  \  case 'Literal':\n\
+  \    switch({}.toString.call(node.value)) {\n\
+  \      case '[object Boolean]': return LiteralBoolean({value: node.value});\n\
+  \      case '[object Null]': return LiteralNull;\n\
+  \      case '[object Number]': return LiteralNumber({value: node.value});\n\
+  \      case '[object RegExp]': return LiteralRegExp({value: node.value});\n\
+  \      case '[object String]': return LiteralString({value: node.value});\n\
+  \    }\n\
   \  case 'LogicalExpression': return LogicalExpression({operator: readLogicalOperator(node.operator), left: readP(node.left), right: readP(node.right)});\n\
   \  case 'NewExpression': return NewExpression({callee: readP(node.callee), arguments: [].map.call(node.arguments)});\n\
   \  case 'Program': return Program({body: [].map.call(node.body, readP);});\n\
@@ -297,6 +305,25 @@ foreign import unreadDoWhileStatement
 foreign import unreadEmptyStatement
   "var unreadEmptyStatement = {type: 'EmptyStatement'};" :: SMAST
 
+foreign import unreadLiteralBoolean
+  "function unreadLiteralBoolean(node) {\n\
+  \  return {type: 'Literal', value: node.value};\n\
+  \}" :: {value :: Boolean} -> SMAST
+foreign import unreadLiteralNull
+  "var unreadLiteralNull = {type: 'Literal', value: null};" :: SMAST
+foreign import unreadLiteralNumber
+  "function unreadLiteralNumber(node) {\n\
+  \  return {type: 'Literal', value: node.value};\n\
+  \}" :: {value :: Number} -> SMAST
+foreign import unreadLiteralRegExp
+  "function unreadLiteralRegExp(node) {\n\
+  \  return {type: 'Literal', value: node.value};\n\
+  \}" :: {value :: Regex} -> SMAST
+foreign import unreadLiteralString
+  "function unreadLiteralString(node) {\n\
+  \  return {type: 'Literal', value: node.value};\n\
+  \}" :: {value :: String} -> SMAST
+
 foreign import unreadLogicalExpression
   "function unreadLogicalExpression(node) {\n\
   \  return {type: 'LogicalExpression', operator: node.operator, left: node.left, right: node.right};\n\
@@ -353,6 +380,11 @@ unread (ContinueStatement a) = unreadContinueStatement {label: unreadMaybe a.lab
 unread DebuggerStatement = unreadDebuggerStatement
 unread (DoWhileStatement a) = unreadDoWhileStatement {body: unread a.body, test: unread a.test}
 unread EmptyStatement = unreadEmptyStatement
+unread (LiteralBoolean a) = unreadLiteralBoolean a
+unread LiteralNull = unreadLiteralNull
+unread (LiteralNumber a) = unreadLiteralNumber a
+unread (LiteralRegExp a) = unreadLiteralRegExp a
+unread (LiteralString a) = unreadLiteralString a
 unread (LogicalExpression a) = unreadLogicalExpression {operator: unreadLogicalOperator a.operator, left: unread a.left, right: unread a.right}
 unread (NewExpression a) = unreadNewExpression {callee: unread a.callee, arguments: map unread a.arguments}
 unread (Program a) = unreadProgram {body: map unread a.body}
@@ -377,6 +409,11 @@ instance showNode :: Show Node where
   show DebuggerStatement = "<<DebuggerStatement>>"
   show (DoWhileStatement a) = "<<DoWhileStatement body:" ++ show a.body ++ " test:" ++ show a.test ++ ">>"
   show EmptyStatement = "<<EmptyStatement>>"
+  show (LiteralBoolean a) = show a.value
+  show LiteralNull = "null"
+  show (LiteralNumber a) = show a.value
+  show (LiteralRegExp a) = show a.value
+  show (LiteralString a) = show a.value
   show (LogicalExpression a) = "<<LogicalExpression operator:" ++ show a.operator ++ " left:" ++ show a.left ++ " right:" ++ show a.right ++ ">>"
   show (NewExpression a) = "<<NewExpression callee:" ++ show a.callee ++ " arguments:" ++ show a.arguments ++ ">>"
   show (Program a) = "<<Program body:" ++ show a.body ++ ">>"
@@ -387,6 +424,14 @@ instance showNode :: Show Node where
   show (UpdateExpression a) = "<<UpdateExpression operator:" ++ show a.operator ++ " argument:" ++ show a.argument ++ " prefix:" ++ show a.prefix ++ ">>"
   show (WhileStatement a) = "<<WhileStatement test:" ++ show a.test ++ " body:" ++ show a.body ++ ">>"
   show _ = "<<unknown>>"
+
+-- this will be in Data.String.Regex: https://github.com/purescript/purescript-strings/issues/3
+foreign import showRegexP
+  "function showRegexP(r){\n\
+  \  return r.toString();\n\
+  \}" :: Regex -> String
+instance tmpShowRegex :: Show Regex where
+  show = showRegexP
 
 instance showAssignmentOperator :: Show AssignmentOperator where
   show x = show $ unreadAssignmentOperator x
