@@ -1,6 +1,3 @@
-purescript-spidermonkey-ast
----------------------------
-
 # Module Documentation
 
 ## Module SpiderMonkeyAST
