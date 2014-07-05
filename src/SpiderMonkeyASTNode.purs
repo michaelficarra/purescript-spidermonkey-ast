@@ -156,11 +156,13 @@ foreign import readP
   \  case 'CatchClause': return CatchClause({param: readP(node.param), body: readP(node.body)});\n\
   \  case 'ConditionalExpression': return ConditionalExpression({test: readP(node.test), alternate: readP(node.alternate), consequent: readP(node.consequent)});\n\
   \  case 'ContinueStatement': return ContinueStatement({label: node.label == null ? Nothing : Just(readP(node.label));});\n\
+  \  case 'DebuggerStatement': return DebuggerStatement;\n\
   \  case 'EmptyStatement': return EmptyStatement;\n\
   \  case 'LogicalExpression': return LogicalExpression({operator: readLogicalOperator(node.operator), left: readP(node.left), right: readP(node.right)});\n\
   \  case 'NewExpression': return NewExpression({callee: readP(node.callee), arguments: [].map.call(node.arguments)});\n\
   \  case 'Program': return Program({body: [].map.call(node.body, readP);});\n\
   \  case 'ReturnStatement': return ReturnStatement({argument: node.argument == null ? Nothing : Just(readP(node.argument))});\n\
+  \  case 'ThisExpression': return ThisExpression;\n\
   \  case 'ThrowStatement': return ThrowStatement({argument: readP(node.argument)});\n\
   \  case 'UnaryExpression': return UnaryExpression({operator: readUnaryOperator(node.operator), argument: readP(node.argument)});\n\
   \  case 'UpdateExpression': return UpdateExpression({operator: readUpdateOperator(node.operator), argument: readP(node.argument), prefix: node.prefix});\n\
@@ -282,6 +284,9 @@ foreign import unreadContinueStatement
   \  return {type: 'ContinueStatement', label: node.label};\n\
   \}" :: {label :: SMAST} -> SMAST
 
+foreign import unreadDebuggerStatement
+  "var unreadDebuggerStatement = {type: 'DebuggerStatement'};" :: SMAST
+
 foreign import unreadEmptyStatement
   "var unreadEmptyStatement = {type: 'EmptyStatement'};" :: SMAST
 
@@ -304,6 +309,9 @@ foreign import unreadReturnStatement
   "function unreadReturnStatement(node) {\n\
   \  return {type: 'ReturnStatement', argument: node.argument};\n\
   \}" :: {argument :: SMAST} -> SMAST
+
+foreign import unreadThisExpression
+  "var unreadThisExpression = {type: 'ThisExpression'};" :: SMAST
 
 foreign import unreadThrowStatement
   "function unreadThrowStatement(node) {\n\
@@ -330,11 +338,13 @@ unread (CallExpression a) = unreadCallExpression {callee: unread a.callee, argum
 unread (CatchClause a) = unreadCatchClause {param: unread a.param, body: unread a.body}
 unread (ConditionalExpression a) = unreadConditionalExpression {test: unread a.test, alternate: unread a.alternate, consequent: unread a.consequent}
 unread (ContinueStatement a) = unreadContinueStatement {label: unreadMaybe a.label}
+unread DebuggerStatement = unreadDebuggerStatement
 unread EmptyStatement = unreadEmptyStatement
 unread (LogicalExpression a) = unreadLogicalExpression {operator: unreadLogicalOperator a.operator, left: unread a.left, right: unread a.right}
 unread (NewExpression a) = unreadNewExpression {callee: unread a.callee, arguments: map unread a.arguments}
 unread (Program a) = unreadProgram {body: map unread a.body}
 unread (ReturnStatement a) = unreadReturnStatement {argument: unreadMaybe a.argument}
+unread ThisExpression = unreadThisExpression
 unread (ThrowStatement a) = unreadThrowStatement {argument: unread a.argument}
 unread (UnaryExpression a) = unreadUnaryExpression {operator: unreadUnaryOperator a.operator, argument: unread a.argument}
 unread (UpdateExpression a) = unreadUpdateExpression {operator: unreadUpdateOperator a.operator, argument: unread a.argument, prefix: a.prefix}
@@ -350,11 +360,13 @@ instance showNode :: Show Node where
   show (CatchClause a) = "<<CatchClause param:" ++ show a.param ++ " body:" ++ show a.body ++ ">>"
   show (ConditionalExpression a) = "<<ConditionalExpression test:" ++ show a.test ++ " alternate:" ++ show a.alternate ++ " consequent:" ++ show a.consequent ++ ">>"
   show (ContinueStatement a) = "<<ContinueStatement label:" ++ show a.label ++ ">>"
+  show DebuggerStatement = "<<DebuggerStatement>>"
   show EmptyStatement = "<<EmptyStatement>>"
   show (LogicalExpression a) = "<<LogicalExpression operator:" ++ show a.operator ++ " left:" ++ show a.left ++ " right:" ++ show a.right ++ ">>"
   show (NewExpression a) = "<<NewExpression callee:" ++ show a.callee ++ " arguments:" ++ show a.arguments ++ ">>"
   show (Program a) = "<<Program body:" ++ show a.body ++ ">>"
   show (ReturnStatement a) = "<<ReturnStatement argument:" ++ show a.argument ++ ">>"
+  show ThisExpression = "<<ThisExpression>>"
   show (ThrowStatement a) = "<<ThrowStatement argument:" ++ show a.argument ++ ">>"
   show (UnaryExpression a) = "<<UnaryExpression operator:" ++ show a.operator ++ " argument:" ++ show a.argument ++ ">>"
   show (UpdateExpression a) = "<<UpdateExpression operator:" ++ show a.operator ++ " argument:" ++ show a.argument ++ " prefix:" ++ show a.prefix ++ ">>"
