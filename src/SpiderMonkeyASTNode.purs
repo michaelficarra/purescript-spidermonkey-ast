@@ -157,6 +157,7 @@ foreign import readP
   \  case 'ConditionalExpression': return ConditionalExpression({test: readP(node.test), alternate: readP(node.alternate), consequent: readP(node.consequent)});\n\
   \  case 'ContinueStatement': return ContinueStatement({label: node.label == null ? Nothing : Just(readP(node.label));});\n\
   \  case 'DebuggerStatement': return DebuggerStatement;\n\
+  \  case 'DoWhileStatement': return DoWhileStatement({body: readP(node.body), test: readP(node.test)});\n\
   \  case 'EmptyStatement': return EmptyStatement;\n\
   \  case 'LogicalExpression': return LogicalExpression({operator: readLogicalOperator(node.operator), left: readP(node.left), right: readP(node.right)});\n\
   \  case 'NewExpression': return NewExpression({callee: readP(node.callee), arguments: [].map.call(node.arguments)});\n\
@@ -166,6 +167,7 @@ foreign import readP
   \  case 'ThrowStatement': return ThrowStatement({argument: readP(node.argument)});\n\
   \  case 'UnaryExpression': return UnaryExpression({operator: readUnaryOperator(node.operator), argument: readP(node.argument)});\n\
   \  case 'UpdateExpression': return UpdateExpression({operator: readUpdateOperator(node.operator), argument: readP(node.argument), prefix: node.prefix});\n\
+  \  case 'WhileStatement': return WhileStatement({test: readP(node.test), body: readP(node.body)});\n\
   \  }\n\
   \  throw new TypeError('Unrecognised node type: ' + JSON.stringify(node.type));\n\
   \}" :: SMAST -> Node
@@ -287,6 +289,11 @@ foreign import unreadContinueStatement
 foreign import unreadDebuggerStatement
   "var unreadDebuggerStatement = {type: 'DebuggerStatement'};" :: SMAST
 
+foreign import unreadDoWhileStatement
+  "function unreadDoWhileStatement(node) {\n\
+  \  return {type: 'DoWhileStatement', body: node.body, test: node.test};\n\
+  \}" :: {body :: SMAST, test :: SMAST} -> SMAST
+
 foreign import unreadEmptyStatement
   "var unreadEmptyStatement = {type: 'EmptyStatement'};" :: SMAST
 
@@ -328,6 +335,11 @@ foreign import unreadUpdateExpression
   \  return {type: 'UpdateExpression', operator: node.operator, argument: node.argument, prefix: node.prefix};\n\
   \}" :: {operator :: String, argument :: SMAST, prefix :: Boolean} -> SMAST
 
+foreign import unreadWhileStatement
+  "function unreadWhileStatement(node) {\n\
+  \  return {type: 'WhileStatement', test: node.test, body: node.body};\n\
+  \}" :: {test :: SMAST, body :: SMAST} -> SMAST
+
 unread :: Node -> SMAST
 unread (ArrayExpression a) = unreadArrayExpression {elements: map unreadMaybe a.elements}
 unread (AssignmentExpression a) = unreadAssignmentExpression {operator: unreadAssignmentOperator a.operator, left: unread a.left, right: unread a.right}
@@ -339,6 +351,7 @@ unread (CatchClause a) = unreadCatchClause {param: unread a.param, body: unread 
 unread (ConditionalExpression a) = unreadConditionalExpression {test: unread a.test, alternate: unread a.alternate, consequent: unread a.consequent}
 unread (ContinueStatement a) = unreadContinueStatement {label: unreadMaybe a.label}
 unread DebuggerStatement = unreadDebuggerStatement
+unread (DoWhileStatement a) = unreadDoWhileStatement {body: unread a.body, test: unread a.test}
 unread EmptyStatement = unreadEmptyStatement
 unread (LogicalExpression a) = unreadLogicalExpression {operator: unreadLogicalOperator a.operator, left: unread a.left, right: unread a.right}
 unread (NewExpression a) = unreadNewExpression {callee: unread a.callee, arguments: map unread a.arguments}
@@ -348,6 +361,7 @@ unread ThisExpression = unreadThisExpression
 unread (ThrowStatement a) = unreadThrowStatement {argument: unread a.argument}
 unread (UnaryExpression a) = unreadUnaryExpression {operator: unreadUnaryOperator a.operator, argument: unread a.argument}
 unread (UpdateExpression a) = unreadUpdateExpression {operator: unreadUpdateOperator a.operator, argument: unread a.argument, prefix: a.prefix}
+unread (WhileStatement a) = unreadWhileStatement {test: unread a.test, body: unread a.body}
 
 
 instance showNode :: Show Node where
@@ -361,6 +375,7 @@ instance showNode :: Show Node where
   show (ConditionalExpression a) = "<<ConditionalExpression test:" ++ show a.test ++ " alternate:" ++ show a.alternate ++ " consequent:" ++ show a.consequent ++ ">>"
   show (ContinueStatement a) = "<<ContinueStatement label:" ++ show a.label ++ ">>"
   show DebuggerStatement = "<<DebuggerStatement>>"
+  show (DoWhileStatement a) = "<<DoWhileStatement body:" ++ show a.body ++ " test:" ++ show a.test ++ ">>"
   show EmptyStatement = "<<EmptyStatement>>"
   show (LogicalExpression a) = "<<LogicalExpression operator:" ++ show a.operator ++ " left:" ++ show a.left ++ " right:" ++ show a.right ++ ">>"
   show (NewExpression a) = "<<NewExpression callee:" ++ show a.callee ++ " arguments:" ++ show a.arguments ++ ">>"
@@ -370,6 +385,7 @@ instance showNode :: Show Node where
   show (ThrowStatement a) = "<<ThrowStatement argument:" ++ show a.argument ++ ">>"
   show (UnaryExpression a) = "<<UnaryExpression operator:" ++ show a.operator ++ " argument:" ++ show a.argument ++ ">>"
   show (UpdateExpression a) = "<<UpdateExpression operator:" ++ show a.operator ++ " argument:" ++ show a.argument ++ " prefix:" ++ show a.prefix ++ ">>"
+  show (WhileStatement a) = "<<WhileStatement test:" ++ show a.test ++ " body:" ++ show a.body ++ ">>"
   show _ = "<<unknown>>"
 
 instance showAssignmentOperator :: Show AssignmentOperator where
