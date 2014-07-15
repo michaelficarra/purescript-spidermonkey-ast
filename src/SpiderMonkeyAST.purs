@@ -160,6 +160,7 @@ foreign import readP
   \  case 'DoWhileStatement': return DoWhileStatement({body: readP(node.body), test: readP(node.test)});\n\
   \  case 'EmptyStatement': return EmptyStatement;\n\
   \  case 'ExpressionStatement': return ExpressionStatement({expression: readP(node.expression)});\n\
+  \  case 'ForInStatement': return ForInStatement({left: readP(node.left), right: readP(node.right), body: readP(node.body)});\n\
   \  case 'FunctionDeclaration': return FunctionDeclaration({id: readP(node.id), params: [].map.call(node.params, readP), body: readP(node.body)});\n\
   \  case 'FunctionExpression': return FunctionExpression({id: node.id == null ? Nothing : Just(readP(node.id)), params: [].map.call(node.params, readP), body: readP(node.body)});\n\
   \  case 'Literal':\n\
@@ -313,6 +314,11 @@ foreign import unreadExpressionStatement
   \  return {type: 'ExpressionStatement', expression: node.expression};\n\
   \}" :: {expression :: SMAST} -> SMAST
 
+foreign import unreadForInStatement
+  "function unreadForInStatement(node) {\n\
+  \  return {type: 'ForInStatement', left: node.left, right: node.right, body: node.body};\n\
+  \}" :: {left :: SMAST, right :: SMAST, body :: SMAST} -> SMAST
+
 foreign import unreadFunctionDeclaration
   "function unreadFunctionDeclaration(node) {\n\
   \  return {type: 'FunctionDeclaration', id: node.id, params: node.params, body: node.body};\n\
@@ -399,6 +405,7 @@ unread DebuggerStatement = unreadDebuggerStatement
 unread (DoWhileStatement a) = unreadDoWhileStatement {body: unread a.body, test: unread a.test}
 unread EmptyStatement = unreadEmptyStatement
 unread (ExpressionStatement a) = unreadExpressionStatement {expression: unread a.expression}
+unread (ForInStatement a) = unreadForInStatement {left: unread a.left, right: unread a.right, body: unread a.body}
 unread (FunctionDeclaration a) = unreadFunctionDeclaration {id: unread a.id, params: map unread a.params, body: unread a.body}
 unread (FunctionExpression a) = unreadFunctionExpression {id: unreadMaybe a.id, params: map unread a.params, body: unread a.body}
 unread (LiteralBoolean a) = unreadLiteralBoolean a
@@ -431,6 +438,7 @@ instance showNode :: Show Node where
   show (DoWhileStatement a) = "<<DoWhileStatement body:" ++ show a.body ++ " test:" ++ show a.test ++ ">>"
   show EmptyStatement = "<<EmptyStatement>>"
   show (ExpressionStatement a) = "<<ExpressionStatement expression:" ++ show a.expression ++ ">>"
+  show (ForInStatement a) = "<<ForInStatement left:" ++ show a.left ++ " right:" ++ show a.right ++ " body:" ++ show a.body ++ ">>"
   show (FunctionDeclaration a) = "<<FunctionDeclaration id:" ++ show a.id ++ " params:" ++ show a.params ++ " body:" ++ show a.body ++ ">>"
   show (FunctionExpression a) = "<<FunctionExpression id:" ++ show a.id ++ " params:" ++ show a.params ++ " body:" ++ show a.body ++ ">>"
   show (LiteralBoolean a) = show a.value
