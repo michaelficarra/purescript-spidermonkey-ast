@@ -159,6 +159,7 @@ foreign import readP
   \  case 'DebuggerStatement': return DebuggerStatement;\n\
   \  case 'DoWhileStatement': return DoWhileStatement({body: readP(node.body), test: readP(node.test)});\n\
   \  case 'EmptyStatement': return EmptyStatement;\n\
+  \  case 'ExpressionStatement': return ExpressionStatement({expression: readP(node.expression)});\n\
   \  case 'FunctionDeclaration': return FunctionDeclaration({id: readP(node.id), params: [].map.call(node.params, readP), body: readP(node.body)});\n\
   \  case 'FunctionExpression': return FunctionExpression({id: node.id == null ? Nothing : Just(readP(node.id)), params: [].map.call(node.params, readP), body: readP(node.body)});\n\
   \  case 'Literal':\n\
@@ -307,6 +308,11 @@ foreign import unreadDoWhileStatement
 foreign import unreadEmptyStatement
   "var unreadEmptyStatement = {type: 'EmptyStatement'};" :: SMAST
 
+foreign import unreadExpressionStatement
+  "function unreadExpressionStatement(node) {\n\
+  \  return {type: 'ExpressionStatement', expression: node.expression};\n\
+  \}" :: {expression :: SMAST} -> SMAST
+
 foreign import unreadFunctionDeclaration
   "function unreadFunctionDeclaration(node) {\n\
   \  return {type: 'FunctionDeclaration', id: node.id, params: node.params, body: node.body};\n\
@@ -392,6 +398,7 @@ unread (ContinueStatement a) = unreadContinueStatement {label: unreadMaybe a.lab
 unread DebuggerStatement = unreadDebuggerStatement
 unread (DoWhileStatement a) = unreadDoWhileStatement {body: unread a.body, test: unread a.test}
 unread EmptyStatement = unreadEmptyStatement
+unread (ExpressionStatement a) = unreadExpressionStatement {expression: unread a.expression}
 unread (FunctionDeclaration a) = unreadFunctionDeclaration {id: unread a.id, params: map unread a.params, body: unread a.body}
 unread (FunctionExpression a) = unreadFunctionExpression {id: unreadMaybe a.id, params: map unread a.params, body: unread a.body}
 unread (LiteralBoolean a) = unreadLiteralBoolean a
@@ -422,9 +429,10 @@ instance showNode :: Show Node where
   show (ContinueStatement a) = "<<ContinueStatement label:" ++ show a.label ++ ">>"
   show DebuggerStatement = "<<DebuggerStatement>>"
   show (DoWhileStatement a) = "<<DoWhileStatement body:" ++ show a.body ++ " test:" ++ show a.test ++ ">>"
+  show EmptyStatement = "<<EmptyStatement>>"
+  show (ExpressionStatement a) = "<<ExpressionStatement expression:" ++ show a.expression ++ ">>"
   show (FunctionDeclaration a) = "<<FunctionDeclaration id:" ++ show a.id ++ " params:" ++ show a.params ++ " body:" ++ show a.body ++ ">>"
   show (FunctionExpression a) = "<<FunctionExpression id:" ++ show a.id ++ " params:" ++ show a.params ++ " body:" ++ show a.body ++ ">>"
-  show EmptyStatement = "<<EmptyStatement>>"
   show (LiteralBoolean a) = show a.value
   show LiteralNull = "null"
   show (LiteralNumber a) = show a.value
