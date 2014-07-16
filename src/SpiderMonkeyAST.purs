@@ -161,6 +161,7 @@ foreign import readP
   \  case 'EmptyStatement': return EmptyStatement;\n\
   \  case 'ExpressionStatement': return ExpressionStatement({expression: readP(node.expression)});\n\
   \  case 'ForInStatement': return ForInStatement({left: readP(node.left), right: readP(node.right), body: readP(node.body)});\n\
+  \  case 'ForStatement': return ForStatement({init: node.init == null ? Nothing : Just(readP(node.init)), test: node.test == null ? Nothing : Just(readP(node.test)), update: node.update == null ? Nothing : Just(readP(node.update)), body: readP(node.body)});\n\
   \  case 'FunctionDeclaration': return FunctionDeclaration({id: readP(node.id), params: [].map.call(node.params, readP), body: readP(node.body)});\n\
   \  case 'FunctionExpression': return FunctionExpression({id: node.id == null ? Nothing : Just(readP(node.id)), params: [].map.call(node.params, readP), body: readP(node.body)});\n\
   \  case 'Literal':\n\
@@ -319,6 +320,11 @@ foreign import unreadForInStatement
   \  return {type: 'ForInStatement', left: node.left, right: node.right, body: node.body};\n\
   \}" :: {left :: SMAST, right :: SMAST, body :: SMAST} -> SMAST
 
+foreign import unreadForStatement
+  "function unreadForStatement(node) {\n\
+  \  return {type: 'ForStatement', init: node.init, test: node.test, update: node.update, body: node.body};\n\
+  \}" :: {init :: SMAST, test :: SMAST, update :: SMAST, body :: SMAST} -> SMAST
+
 foreign import unreadFunctionDeclaration
   "function unreadFunctionDeclaration(node) {\n\
   \  return {type: 'FunctionDeclaration', id: node.id, params: node.params, body: node.body};\n\
@@ -406,6 +412,7 @@ unread (DoWhileStatement a) = unreadDoWhileStatement {body: unread a.body, test:
 unread EmptyStatement = unreadEmptyStatement
 unread (ExpressionStatement a) = unreadExpressionStatement {expression: unread a.expression}
 unread (ForInStatement a) = unreadForInStatement {left: unread a.left, right: unread a.right, body: unread a.body}
+unread (ForStatement a) = unreadForStatement {init: unreadMaybe a.init, test: unreadMaybe a.test, update: unreadMaybe a.update, body: unread a.body}
 unread (FunctionDeclaration a) = unreadFunctionDeclaration {id: unread a.id, params: map unread a.params, body: unread a.body}
 unread (FunctionExpression a) = unreadFunctionExpression {id: unreadMaybe a.id, params: map unread a.params, body: unread a.body}
 unread (LiteralBoolean a) = unreadLiteralBoolean a
@@ -439,6 +446,7 @@ instance showNode :: Show Node where
   show EmptyStatement = "<<EmptyStatement>>"
   show (ExpressionStatement a) = "<<ExpressionStatement expression:" ++ show a.expression ++ ">>"
   show (ForInStatement a) = "<<ForInStatement left:" ++ show a.left ++ " right:" ++ show a.right ++ " body:" ++ show a.body ++ ">>"
+  show (ForStatement a) = "<<ForStatement init:" ++ show a.init ++ " test:" ++ show a.test ++ " update:" ++ show a.update ++ " body:" ++ show a.body ++ ">>"
   show (FunctionDeclaration a) = "<<FunctionDeclaration id:" ++ show a.id ++ " params:" ++ show a.params ++ " body:" ++ show a.body ++ ">>"
   show (FunctionExpression a) = "<<FunctionExpression id:" ++ show a.id ++ " params:" ++ show a.params ++ " body:" ++ show a.body ++ ">>"
   show (LiteralBoolean a) = show a.value
