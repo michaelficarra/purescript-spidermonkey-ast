@@ -173,6 +173,7 @@ foreign import readP
   \      case '[object String]': return LiteralString({value: node.value});\n\
   \    }\n\
   \  case 'LogicalExpression': return LogicalExpression({operator: readLogicalOperator(node.operator), left: readP(node.left), right: readP(node.right)});\n\
+  \  case 'MemberExpression': return MemberExpression({object: readP(node.object), property: readP(node.property), computed: !!node.computed});\n\
   \  case 'NewExpression': return NewExpression({callee: readP(node.callee), arguments: [].map.call(node.arguments)});\n\
   \  case 'Program': return Program({body: [].map.call(node.body, readP);});\n\
   \  case 'ReturnStatement': return ReturnStatement({argument: node.argument == null ? Nothing : Just(readP(node.argument))});\n\
@@ -359,6 +360,11 @@ foreign import unreadLogicalExpression
   \  return {type: 'LogicalExpression', operator: node.operator, left: node.left, right: node.right};\n\
   \}" :: {operator :: String, left :: SMAST, right :: SMAST} -> SMAST
 
+foreign import unreadMemberExpression
+  "function unreadMemberExpression(node) {\n\
+  \  return {type: 'MemberExpression', object: node.object, property: node.property, computed: node.computed};\n\
+  \}" :: {object :: SMAST, property :: SMAST, computed :: Boolean} -> SMAST
+
 foreign import unreadNewExpression
   "function unreadNewExpression(node) {\n\
   \  return {type: 'NewExpression', callee: node.callee, arguments: node.arguments};\n\
@@ -421,6 +427,7 @@ unread (LiteralNumber a) = unreadLiteralNumber a
 unread (LiteralRegExp a) = unreadLiteralRegExp a
 unread (LiteralString a) = unreadLiteralString a
 unread (LogicalExpression a) = unreadLogicalExpression {operator: unreadLogicalOperator a.operator, left: unread a.left, right: unread a.right}
+unread (MemberExpression a) = unreadMemberExpression {object: unread a.object, property: unread a.property, computed: a.computed}
 unread (NewExpression a) = unreadNewExpression {callee: unread a.callee, arguments: map unread a.arguments}
 unread (Program a) = unreadProgram {body: map unread a.body}
 unread (ReturnStatement a) = unreadReturnStatement {argument: unreadMaybe a.argument}
@@ -455,6 +462,7 @@ instance showNode :: Show Node where
   show (LiteralRegExp a) = show a.value
   show (LiteralString a) = show a.value
   show (LogicalExpression a) = "<<LogicalExpression operator:" ++ show a.operator ++ " left:" ++ show a.left ++ " right:" ++ show a.right ++ ">>"
+  show (MemberExpression a) = "<<MemberExpression object:" ++ show a.object ++ " property:" ++ show a.property ++ " computed:" ++ show a.computed ++ ">>"
   show (NewExpression a) = "<<NewExpression callee:" ++ show a.callee ++ " arguments:" ++ show a.arguments ++ ">>"
   show (Program a) = "<<Program body:" ++ show a.body ++ ">>"
   show (ReturnStatement a) = "<<ReturnStatement argument:" ++ show a.argument ++ ">>"
