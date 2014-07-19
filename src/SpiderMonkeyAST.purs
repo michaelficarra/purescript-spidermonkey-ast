@@ -212,6 +212,7 @@ foreign import readP
   \  case 'VariableDeclaration': return VariableDeclaration({kind: readVarDeclKind(node.kind), declarations: [].map.call(node.declarations, readP)});\n\
   \  case 'VariableDeclarator': return VariableDeclarator({id: readP(node.id), init: node.init == null ? Nothing : Just(readP(node.init))});\n\
   \  case 'WhileStatement': return WhileStatement({test: readP(node.test), body: readP(node.body)});\n\
+  \  case 'WithStatement': return WithStatement({object: readP(node.object), body: readP(node.body)});\n\
   \  }\n\
   \  throw new TypeError('Unrecognised node type: ' + JSON.stringify(node.type));\n\
   \}" :: SMAST -> Node
@@ -483,6 +484,11 @@ foreign import unreadWhileStatement
   \  return {type: 'WhileStatement', test: node.test, body: node.body};\n\
   \}" :: {test :: SMAST, body :: SMAST} -> SMAST
 
+foreign import unreadWithStatement
+  "function unreadWithStatement(node) {\n\
+  \  return {type: 'WithStatement', object: node.object, body: node.body};\n\
+  \}" :: {object :: SMAST, body :: SMAST} -> SMAST
+
 unread :: Node -> SMAST
 unread (ArrayExpression a) = unreadArrayExpression {elements: map unreadMaybe a.elements}
 unread (AssignmentExpression a) = unreadAssignmentExpression {operator: unreadAssignmentOperator a.operator, left: unread a.left, right: unread a.right}
@@ -523,6 +529,7 @@ unread (UpdateExpression a) = unreadUpdateExpression {operator: unreadUpdateOper
 unread (VariableDeclaration a) = unreadVariableDeclaration {kind: unreadVarDeclKind a.kind, declarations: map unread a.declarations}
 unread (VariableDeclarator a) = unreadVariableDeclarator {id: unread a.id, init: unreadMaybe a.init}
 unread (WhileStatement a) = unreadWhileStatement {test: unread a.test, body: unread a.body}
+unread (WithStatement a) = unreadWithStatement {object: unread a.object, body: unread a.body}
 
 
 instance showNode :: Show Node where
@@ -565,6 +572,7 @@ instance showNode :: Show Node where
   show (VariableDeclaration a) = "<<VariableDeclaration kind:" ++ show a.kind ++ " declarations:" ++ show a.declarations ++ ">>"
   show (VariableDeclarator a) = "<<VariableDeclarator id:" ++ show a.id ++ " init:" ++ show a.init ++ ">>"
   show (WhileStatement a) = "<<WhileStatement test:" ++ show a.test ++ " body:" ++ show a.body ++ ">>"
+  show (WithStatement a) = "<<WithStatement object:" ++ show a.object ++ " body:" ++ show a.body ++ ">>"
   show _ = "<<unknown>>"
 
 -- this will be in Data.String.Regex: https://github.com/purescript/purescript-strings/issues/3
