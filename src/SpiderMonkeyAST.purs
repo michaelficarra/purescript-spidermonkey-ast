@@ -197,6 +197,7 @@ foreign import readP
   \  case 'SwitchStatement': return SwitchStatement({discriminant: readP(node.discriminant), cases: [].map.call(node.cases, readP)});\n\
   \  case 'ThisExpression': return ThisExpression;\n\
   \  case 'ThrowStatement': return ThrowStatement({argument: readP(node.argument)});\n\
+  \  case 'TryStatement': return TryStatement({block: readP(node.block), handler: node.handler == null ? Nothing : Just(readP(node.handler)), finalizer: node.finalizer == null ? Nothing : Just(readP(node.finalizer))});\n\
   \  case 'UnaryExpression': return UnaryExpression({operator: readUnaryOperator(node.operator), argument: readP(node.argument)});\n\
   \  case 'UpdateExpression': return UpdateExpression({operator: readUpdateOperator(node.operator), argument: readP(node.argument), prefix: node.prefix});\n\
   \  case 'WhileStatement': return WhileStatement({test: readP(node.test), body: readP(node.body)});\n\
@@ -437,6 +438,11 @@ foreign import unreadThrowStatement
   \  return {type: 'ThrowStatement', argument: node.argument};\n\
   \}" :: {argument :: SMAST} -> SMAST
 
+foreign import unreadTryStatement
+  "function unreadTryStatement(node) {\n\
+  \  return {type: 'TryStatement', block: node.block, handler: node.handler, finalizer: node.finalizer};\n\
+  \}" :: {block :: SMAST, handler :: SMAST, finalizer :: SMAST} -> SMAST
+
 foreign import unreadUnaryExpression
   "function unreadUnaryExpression(node) {\n\
   \  return {type: 'UnaryExpression', operator: node.operator, argument: node.argument};\n\
@@ -486,6 +492,7 @@ unread (SwitchCase a) = unreadSwitchCase {test: unreadMaybe a.test, consequent: 
 unread (SwitchStatement a) = unreadSwitchStatement {discriminant: unread a.discriminant, cases: map unread a.cases}
 unread ThisExpression = unreadThisExpression
 unread (ThrowStatement a) = unreadThrowStatement {argument: unread a.argument}
+unread (TryStatement a) = unreadTryStatement {block: unread a.block, handler: unreadMaybe a.handler, finalizer: unreadMaybe a.finalizer}
 unread (UnaryExpression a) = unreadUnaryExpression {operator: unreadUnaryOperator a.operator, argument: unread a.argument}
 unread (UpdateExpression a) = unreadUpdateExpression {operator: unreadUpdateOperator a.operator, argument: unread a.argument, prefix: a.prefix}
 unread (WhileStatement a) = unreadWhileStatement {test: unread a.test, body: unread a.body}
@@ -525,6 +532,7 @@ instance showNode :: Show Node where
   show (SwitchStatement a) = "<<SwitchStatement discriminant:" ++ show a.discriminant ++ " cases:" ++ show a.cases ++ ">>"
   show ThisExpression = "<<ThisExpression>>"
   show (ThrowStatement a) = "<<ThrowStatement argument:" ++ show a.argument ++ ">>"
+  show (TryStatement a) = "<<TryStatement block:" ++ show a.block ++ " handler:" ++ show a.handler ++ " finalizer:" ++ show a.finalizer ++ ">>"
   show (UnaryExpression a) = "<<UnaryExpression operator:" ++ show a.operator ++ " argument:" ++ show a.argument ++ ">>"
   show (UpdateExpression a) = "<<UpdateExpression operator:" ++ show a.operator ++ " argument:" ++ show a.argument ++ " prefix:" ++ show a.prefix ++ ">>"
   show (WhileStatement a) = "<<WhileStatement test:" ++ show a.test ++ " body:" ++ show a.body ++ ">>"
