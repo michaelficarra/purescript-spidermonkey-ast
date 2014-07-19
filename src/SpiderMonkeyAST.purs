@@ -193,6 +193,8 @@ foreign import readP
   \  case 'Program': return Program({body: [].map.call(node.body, readP);});\n\
   \  case 'ReturnStatement': return ReturnStatement({argument: node.argument == null ? Nothing : Just(readP(node.argument))});\n\
   \  case 'SequenceExpression': return SequenceExpression({expressions: [].map.call(node.expressions, readP)});\n\
+  \  case 'SwitchCase': return SwitchCase({test: node.test == null ? Nothing : Just(readP(node.test)), consequent: [].map.call(node.consequent, readP)});\n\
+  \  case 'SwitchStatement': return SwitchStatement({discriminant: readP(node.discriminant), cases: [].map.call(node.cases, readP)});\n\
   \  case 'ThisExpression': return ThisExpression;\n\
   \  case 'ThrowStatement': return ThrowStatement({argument: readP(node.argument)});\n\
   \  case 'UnaryExpression': return UnaryExpression({operator: readUnaryOperator(node.operator), argument: readP(node.argument)});\n\
@@ -417,6 +419,16 @@ foreign import unreadSequenceExpression
   \  return {type: 'SequenceExpression', expressions: node.expressions};\n\
   \}" :: {expressions :: [SMAST]} -> SMAST
 
+foreign import unreadSwitchCase
+  "function unreadSwitchCase(node) {\n\
+  \  return {type: 'SwitchCase', test: node.test, consequent: node.consequent};\n\
+  \}" :: {test :: SMAST, consequent :: [SMAST]} -> SMAST
+
+foreign import unreadSwitchStatement
+  "function unreadSwitchStatement(node) {\n\
+  \  return {type: 'SwitchStatement', discriminant: node.discriminant, cases: node.cases};\n\
+  \}" :: {discriminant :: SMAST, cases :: [SMAST]} -> SMAST
+
 foreign import unreadThisExpression
   "var unreadThisExpression = {type: 'ThisExpression'};" :: SMAST
 
@@ -470,6 +482,8 @@ unread (ObjectExpression a) = unreadObjectExpression {properties: map unreadObje
 unread (Program a) = unreadProgram {body: map unread a.body}
 unread (ReturnStatement a) = unreadReturnStatement {argument: unreadMaybe a.argument}
 unread (SequenceExpression a) = unreadSequenceExpression {expressions: map unread a.expressions}
+unread (SwitchCase a) = unreadSwitchCase {test: unreadMaybe a.test, consequent: map unread a.consequent}
+unread (SwitchStatement a) = unreadSwitchStatement {discriminant: unread a.discriminant, cases: map unread a.cases}
 unread ThisExpression = unreadThisExpression
 unread (ThrowStatement a) = unreadThrowStatement {argument: unread a.argument}
 unread (UnaryExpression a) = unreadUnaryExpression {operator: unreadUnaryOperator a.operator, argument: unread a.argument}
@@ -507,6 +521,8 @@ instance showNode :: Show Node where
   show (Program a) = "<<Program body:" ++ show a.body ++ ">>"
   show (ReturnStatement a) = "<<ReturnStatement argument:" ++ show a.argument ++ ">>"
   show (SequenceExpression a) = "<<SequenceExpression expressions:" ++ show a.expressions ++ ">>"
+  show (SwitchCase a) = "<<SwitchCase test:" ++ show a.test ++ " consequent:" ++ show a.consequent ++ ">>"
+  show (SwitchStatement a) = "<<SwitchStatement discriminant:" ++ show a.discriminant ++ " cases:" ++ show a.cases ++ ">>"
   show ThisExpression = "<<ThisExpression>>"
   show (ThrowStatement a) = "<<ThrowStatement argument:" ++ show a.argument ++ ">>"
   show (UnaryExpression a) = "<<UnaryExpression operator:" ++ show a.operator ++ " argument:" ++ show a.argument ++ ">>"
