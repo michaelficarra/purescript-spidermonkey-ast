@@ -26,7 +26,7 @@ import Data.String.Regex (Regex(..))
 
 data VarDeclKind = Var | Let | Const
 data ObjectPropertyKind = Init | Get | Set
-type ObjectProperty = {key :: Node, value :: Node, kind :: ObjectPropertyKind}
+data ObjectProperty = ObjectProperty {kind :: ObjectPropertyKind, key :: Node, value :: Node}
 
 data AssignmentOperator
   = AssignOp | AssignOpPlus | AssignOpMinus | AssignOpMul | AssignOpDiv | AssignOpMod
@@ -93,6 +93,20 @@ data Node
 
 foreign import data SMAST :: *
 
+
+foreign import readObjectPropertyKind
+  "function readObjectPropertyKind(kind) {\n\
+  \  switch (kind) {\n\
+  \  case 'init': return Init;\n\
+  \  case 'get': return Get;\n\
+  \  case 'set': return Set;\n\
+  \  }\n\
+  \}" :: String -> ObjectPropertyKind
+
+foreign import readObjectProperty
+  "function readObjectProperty(node) {\n\
+  \  return ObjectProperty({node.kind: readObjectPropertyKind(node.kind), key: readP(node.key), value: readP(node.value)});\n\
+  \}" :: SMAST -> ObjectProperty
 
 readAssignmentOperator :: String -> AssignmentOperator
 readAssignmentOperator "=" = AssignOp
@@ -175,6 +189,7 @@ foreign import readP
   \  case 'LogicalExpression': return LogicalExpression({operator: readLogicalOperator(node.operator), left: readP(node.left), right: readP(node.right)});\n\
   \  case 'MemberExpression': return MemberExpression({object: readP(node.object), property: readP(node.property), computed: !!node.computed});\n\
   \  case 'NewExpression': return NewExpression({callee: readP(node.callee), arguments: [].map.call(node.arguments)});\n\
+  \  case 'ObjectExpression': return ObjectExpression({properties: [].map.call(node.properties, readObjectProperty)});\n\
   \  case 'Program': return Program({body: [].map.call(node.body, readP);});\n\
   \  case 'ReturnStatement': return ReturnStatement({argument: node.argument == null ? Nothing : Just(readP(node.argument))});\n\
   \  case 'ThisExpression': return ThisExpression;\n\
@@ -203,6 +218,17 @@ unreadMaybe :: Maybe Node -> SMAST
 -- why can't this be point-free?
 unreadMaybe x = maybe unreadNull unread x
 
+
+unreadObjectPropertyKind Init = "init"
+unreadObjectPropertyKind Get = "get"
+unreadObjectPropertyKind Set = "set"
+
+foreign import unreadObjectPropertyP
+  "function unreadObjectPropertyP(node) {\n\
+  \  return {kind: node.kind, key: node.key, value: node.value};\n\
+  \}" :: {kind :: String, key :: SMAST, value :: SMAST} -> SMAST
+
+unreadObjectProperty (ObjectProperty p) = unreadObjectPropertyP {kind: unreadObjectPropertyKind p.kind, key: unread p.key, value: unread p.value}
 
 unreadAssignmentOperator :: AssignmentOperator -> String
 unreadAssignmentOperator AssignOp = "="
@@ -370,6 +396,11 @@ foreign import unreadNewExpression
   \  return {type: 'NewExpression', callee: node.callee, arguments: node.arguments};\n\
   \}" :: {callee :: SMAST, arguments :: [SMAST]} -> SMAST
 
+foreign import unreadObjectExpression
+  "function unreadObjectExpression(node) {\n\
+  \  return {type: 'ObjectExpression', properties: node.properties};\n\
+  \}" :: {properties :: [SMAST]} -> SMAST
+
 foreign import unreadProgram
   "function unreadProgram(node) {\n\
   \  return {type: 'Program', body: node.body};\n\
@@ -429,6 +460,7 @@ unread (LiteralString a) = unreadLiteralString a
 unread (LogicalExpression a) = unreadLogicalExpression {operator: unreadLogicalOperator a.operator, left: unread a.left, right: unread a.right}
 unread (MemberExpression a) = unreadMemberExpression {object: unread a.object, property: unread a.property, computed: a.computed}
 unread (NewExpression a) = unreadNewExpression {callee: unread a.callee, arguments: map unread a.arguments}
+unread (ObjectExpression a) = unreadObjectExpression {properties: map unreadObjectProperty a.properties}
 unread (Program a) = unreadProgram {body: map unread a.body}
 unread (ReturnStatement a) = unreadReturnStatement {argument: unreadMaybe a.argument}
 unread ThisExpression = unreadThisExpression
@@ -464,6 +496,7 @@ instance showNode :: Show Node where
   show (LogicalExpression a) = "<<LogicalExpression operator:" ++ show a.operator ++ " left:" ++ show a.left ++ " right:" ++ show a.right ++ ">>"
   show (MemberExpression a) = "<<MemberExpression object:" ++ show a.object ++ " property:" ++ show a.property ++ " computed:" ++ show a.computed ++ ">>"
   show (NewExpression a) = "<<NewExpression callee:" ++ show a.callee ++ " arguments:" ++ show a.arguments ++ ">>"
+  show (ObjectExpression a) = "<<ObjectExpression properties:" ++ show a.properties ++ ">>"
   show (Program a) = "<<Program body:" ++ show a.body ++ ">>"
   show (ReturnStatement a) = "<<ReturnStatement argument:" ++ show a.argument ++ ">>"
   show ThisExpression = "<<ThisExpression>>"
@@ -480,6 +513,12 @@ foreign import showRegexP
   \}" :: Regex -> String
 instance tmpShowRegex :: Show Regex where
   show = showRegexP
+
+instance showObjectPropertyKind :: Show ObjectPropertyKind where
+  show x = show $ unreadObjectPropertyKind x
+
+instance showObjectProperty :: Show ObjectProperty where
+  show (ObjectProperty a) = "<<Property kind:" ++ show a.kind ++ " key:" ++ show a.key ++ " value:" ++ show a.value ++ ">>"
 
 instance showAssignmentOperator :: Show AssignmentOperator where
   show x = show $ unreadAssignmentOperator x

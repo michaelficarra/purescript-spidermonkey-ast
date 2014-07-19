@@ -90,7 +90,8 @@
       WhileStatement :: { test :: SpiderMonkeyAST.Node, body :: SpiderMonkeyAST.Node } -> Node
       WithStatement :: { object :: SpiderMonkeyAST.Node, body :: SpiderMonkeyAST.Node } -> Node
 
-    type ObjectProperty  = { key :: SpiderMonkeyAST.Node, value :: SpiderMonkeyAST.Node, kind :: SpiderMonkeyAST.ObjectPropertyKind }
+    data ObjectProperty where
+      ObjectProperty :: { kind :: SpiderMonkeyAST.ObjectPropertyKind, key :: SpiderMonkeyAST.Node, value :: SpiderMonkeyAST.Node } -> ObjectProperty
 
     data ObjectPropertyKind where
       Init :: ObjectPropertyKind
