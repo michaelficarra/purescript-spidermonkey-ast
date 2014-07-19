@@ -85,7 +85,7 @@ data Node
   | TryStatement {block :: Node, handler :: Maybe Node, finalizer :: Maybe Node}
   | UnaryExpression {operator :: UnaryOperator, argument :: Node}
   | UpdateExpression {operator :: UpdateOperator, argument :: Node, prefix :: Boolean}
-  | VariableDeclaration {declarations :: [Node], kind :: VarDeclKind}
+  | VariableDeclaration {kind :: VarDeclKind, declarations :: [Node]}
   | VariableDeclarator {id :: Node, init :: Maybe Node}
   | WhileStatement {test :: Node, body :: Node}
   | WithStatement {object :: Node, body :: Node}
@@ -93,6 +93,15 @@ data Node
 
 foreign import data SMAST :: *
 
+
+foreign import readVarDeclKind
+  "function readVarDeclKind(kind) {\n\
+  \  switch (kind) {\n\
+  \  case 'var': return Var;\n\
+  \  case 'let': return Let;\n\
+  \  case 'const': return Const;\n\
+  \  }\n\
+  \}" :: String -> VarDeclKind
 
 foreign import readObjectPropertyKind
   "function readObjectPropertyKind(kind) {\n\
@@ -200,6 +209,8 @@ foreign import readP
   \  case 'TryStatement': return TryStatement({block: readP(node.block), handler: node.handler == null ? Nothing : Just(readP(node.handler)), finalizer: node.finalizer == null ? Nothing : Just(readP(node.finalizer))});\n\
   \  case 'UnaryExpression': return UnaryExpression({operator: readUnaryOperator(node.operator), argument: readP(node.argument)});\n\
   \  case 'UpdateExpression': return UpdateExpression({operator: readUpdateOperator(node.operator), argument: readP(node.argument), prefix: node.prefix});\n\
+  \  case 'VariableDeclaration': return VariableDeclaration({kind: readVarDeclKind(node.kind), declarations: [].map.call(node.declarations, readP)});\n\
+  \  case 'VariableDeclarator': return VariableDeclarator({id: readP(node.id), init: node.init == null ? Nothing : Just(readP(node.init))});\n\
   \  case 'WhileStatement': return WhileStatement({test: readP(node.test), body: readP(node.body)});\n\
   \  }\n\
   \  throw new TypeError('Unrecognised node type: ' + JSON.stringify(node.type));\n\
@@ -222,6 +233,10 @@ unreadMaybe :: Maybe Node -> SMAST
 -- why can't this be point-free?
 unreadMaybe x = maybe unreadNull unread x
 
+
+unreadVarDeclKind Var = "var"
+unreadVarDeclKind Let = "let"
+unreadVarDeclKind Const = "const"
 
 unreadObjectPropertyKind Init = "init"
 unreadObjectPropertyKind Get = "get"
@@ -453,6 +468,16 @@ foreign import unreadUpdateExpression
   \  return {type: 'UpdateExpression', operator: node.operator, argument: node.argument, prefix: node.prefix};\n\
   \}" :: {operator :: String, argument :: SMAST, prefix :: Boolean} -> SMAST
 
+foreign import unreadVariableDeclaration
+  "function unreadVariableDeclaration(node) {\n\
+  \  return {type: 'VariableDeclaration', kind: node.kind, declarations: node.declarations};\n\
+  \}" :: {kind :: String, declarations :: [SMAST]} -> SMAST
+
+foreign import unreadVariableDeclarator
+  "function unreadVariableDeclarator(node) {\n\
+  \  return {type: 'VariableDeclarator', id: node.id, init: node.init};\n\
+  \}" :: {id :: SMAST, init :: SMAST} -> SMAST
+
 foreign import unreadWhileStatement
   "function unreadWhileStatement(node) {\n\
   \  return {type: 'WhileStatement', test: node.test, body: node.body};\n\
@@ -495,6 +520,8 @@ unread (ThrowStatement a) = unreadThrowStatement {argument: unread a.argument}
 unread (TryStatement a) = unreadTryStatement {block: unread a.block, handler: unreadMaybe a.handler, finalizer: unreadMaybe a.finalizer}
 unread (UnaryExpression a) = unreadUnaryExpression {operator: unreadUnaryOperator a.operator, argument: unread a.argument}
 unread (UpdateExpression a) = unreadUpdateExpression {operator: unreadUpdateOperator a.operator, argument: unread a.argument, prefix: a.prefix}
+unread (VariableDeclaration a) = unreadVariableDeclaration {kind: unreadVarDeclKind a.kind, declarations: map unread a.declarations}
+unread (VariableDeclarator a) = unreadVariableDeclarator {id: unread a.id, init: unreadMaybe a.init}
 unread (WhileStatement a) = unreadWhileStatement {test: unread a.test, body: unread a.body}
 
 
@@ -535,6 +562,8 @@ instance showNode :: Show Node where
   show (TryStatement a) = "<<TryStatement block:" ++ show a.block ++ " handler:" ++ show a.handler ++ " finalizer:" ++ show a.finalizer ++ ">>"
   show (UnaryExpression a) = "<<UnaryExpression operator:" ++ show a.operator ++ " argument:" ++ show a.argument ++ ">>"
   show (UpdateExpression a) = "<<UpdateExpression operator:" ++ show a.operator ++ " argument:" ++ show a.argument ++ " prefix:" ++ show a.prefix ++ ">>"
+  show (VariableDeclaration a) = "<<VariableDeclaration kind:" ++ show a.kind ++ " declarations:" ++ show a.declarations ++ ">>"
+  show (VariableDeclarator a) = "<<VariableDeclarator id:" ++ show a.id ++ " init:" ++ show a.init ++ ">>"
   show (WhileStatement a) = "<<WhileStatement test:" ++ show a.test ++ " body:" ++ show a.body ++ ">>"
   show _ = "<<unknown>>"
 
@@ -545,6 +574,9 @@ foreign import showRegexP
   \}" :: Regex -> String
 instance tmpShowRegex :: Show Regex where
   show = showRegexP
+
+instance showVarDeclKind :: Show VarDeclKind where
+  show x = show $ unreadVarDeclKind x
 
 instance showObjectPropertyKind :: Show ObjectPropertyKind where
   show x = show $ unreadObjectPropertyKind x

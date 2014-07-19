@@ -85,7 +85,7 @@
       TryStatement :: { block :: SpiderMonkeyAST.Node, handler :: Data.Maybe.Maybe SpiderMonkeyAST.Node, finalizer :: Data.Maybe.Maybe SpiderMonkeyAST.Node } -> Node
       UnaryExpression :: { operator :: SpiderMonkeyAST.UnaryOperator, argument :: SpiderMonkeyAST.Node } -> Node
       UpdateExpression :: { operator :: SpiderMonkeyAST.UpdateOperator, argument :: SpiderMonkeyAST.Node, prefix :: Boolean } -> Node
-      VariableDeclaration :: { declarations :: [SpiderMonkeyAST.Node], kind :: SpiderMonkeyAST.VarDeclKind } -> Node
+      VariableDeclaration :: { kind :: SpiderMonkeyAST.VarDeclKind, declarations :: [SpiderMonkeyAST.Node] } -> Node
       VariableDeclarator :: { id :: SpiderMonkeyAST.Node, init :: Data.Maybe.Maybe SpiderMonkeyAST.Node } -> Node
       WhileStatement :: { test :: SpiderMonkeyAST.Node, body :: SpiderMonkeyAST.Node } -> Node
       WithStatement :: { object :: SpiderMonkeyAST.Node, body :: SpiderMonkeyAST.Node } -> Node
