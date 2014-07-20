@@ -187,6 +187,9 @@ foreign import readP
   \  case 'ForStatement': return ForStatement({init: node.init == null ? Nothing : Just(readP(node.init)), test: node.test == null ? Nothing : Just(readP(node.test)), update: node.update == null ? Nothing : Just(readP(node.update)), body: readP(node.body)});\n\
   \  case 'FunctionDeclaration': return FunctionDeclaration({id: readP(node.id), params: [].map.call(node.params, readP), body: readP(node.body)});\n\
   \  case 'FunctionExpression': return FunctionExpression({id: node.id == null ? Nothing : Just(readP(node.id)), params: [].map.call(node.params, readP), body: readP(node.body)});\n\
+  \  case 'Identifier': return Identifier({name: node.name});\n\
+  \  case 'IfStatement': return IfStatement({test: readP(node.test), consequent: readP(node.consequent), alternate: node.alternate == null ? Nothing : Just(readP(node.alternate))});\n\
+  \  case 'LabeledStatement': return LabeledStatement({label: readP(node.label), body: readP(node.body)});\n\
   \  case 'Literal':\n\
   \    switch({}.toString.call(node.value)) {\n\
   \      case '[object Boolean]': return LiteralBoolean({value: node.value});\n\
@@ -382,6 +385,21 @@ foreign import unreadFunctionExpression
   \  return {type: 'FunctionExpression', id: node.id, params: node.params, body: node.body};\n\
   \}" :: {id :: SMAST, params :: [SMAST], body :: SMAST} -> SMAST
 
+foreign import unreadIdentifier
+  "function unreadIdentifier(node) {\n\
+  \  return {type: 'Identifier', name: node.name};\n\
+  \}" :: {name :: String} -> SMAST
+
+foreign import unreadIfStatement
+  "function unreadIfStatement(node) {\n\
+  \  return {type: 'IfStatement', test: node.test, consequent: node.consequent, alternate: node.alternate};\n\
+  \}" :: {test :: SMAST, consequent :: SMAST, alternate :: SMAST} -> SMAST
+
+foreign import unreadLabeledStatement
+  "function unreadLabeledStatement(node) {\n\
+  \  return {type: 'LabeledStatement', label: node.label, body: node.body};\n\
+  \}" :: {label :: SMAST, body :: SMAST} -> SMAST
+
 foreign import unreadLiteralBoolean
   "function unreadLiteralBoolean(node) {\n\
   \  return {type: 'Literal', value: node.value};\n\
@@ -507,6 +525,9 @@ unread (ForInStatement a) = unreadForInStatement {left: unread a.left, right: un
 unread (ForStatement a) = unreadForStatement {init: unreadMaybe a.init, test: unreadMaybe a.test, update: unreadMaybe a.update, body: unread a.body}
 unread (FunctionDeclaration a) = unreadFunctionDeclaration {id: unread a.id, params: map unread a.params, body: unread a.body}
 unread (FunctionExpression a) = unreadFunctionExpression {id: unreadMaybe a.id, params: map unread a.params, body: unread a.body}
+unread (Identifier a) = unreadIdentifier a
+unread (IfStatement a) = unreadIfStatement {test: unread a.test, consequent: unread a.consequent, alternate: unreadMaybe a.alternate}
+unread (LabeledStatement a) = unreadLabeledStatement {label: unread a.label, body: unread a.body}
 unread (LiteralBoolean a) = unreadLiteralBoolean a
 unread LiteralNull = unreadLiteralNull
 unread (LiteralNumber a) = unreadLiteralNumber a
@@ -550,6 +571,9 @@ instance showNode :: Show Node where
   show (ForStatement a) = "<<ForStatement init:" ++ show a.init ++ " test:" ++ show a.test ++ " update:" ++ show a.update ++ " body:" ++ show a.body ++ ">>"
   show (FunctionDeclaration a) = "<<FunctionDeclaration id:" ++ show a.id ++ " params:" ++ show a.params ++ " body:" ++ show a.body ++ ">>"
   show (FunctionExpression a) = "<<FunctionExpression id:" ++ show a.id ++ " params:" ++ show a.params ++ " body:" ++ show a.body ++ ">>"
+  show (Identifier a) = "<<Identifier name:" ++ show a.name ++ ">>"
+  show (IfStatement a) = "<<IfStatement test:" ++ show a.test ++ " consequent:" ++ show a.consequent ++ " alternate:" ++ show a.alternate ++ ">>"
+  show (LabeledStatement a) = "<<LabeledStatement label:" ++ show a.label ++ " body:" ++ show a.body ++ ">>"
   show (LiteralBoolean a) = show a.value
   show LiteralNull = "null"
   show (LiteralNumber a) = show a.value
