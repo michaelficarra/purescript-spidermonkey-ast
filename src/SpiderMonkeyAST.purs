@@ -175,7 +175,7 @@ foreign import readP
   \  case 'BinaryExpression': return BinaryExpression({operator: readBinaryOperator(node.operator), left: readP(node.left), right: readP(node.right)});\n\
   \  case 'BlockStatement': return BlockStatement({body: [].map.call(node.body, readP)});\n\
   \  case 'BreakStatement': return BreakStatement({label: node.label == null ? Data_Maybe.Nothing : Data_Maybe.Just(readP(node.label))});\n\
-  \  case 'CallExpression': return CallExpression({callee: readP(node.callee), arguments: [].map.call(node.arguments)});\n\
+  \  case 'CallExpression': return CallExpression({callee: readP(node.callee), arguments: [].map.call(node.arguments, readP)});\n\
   \  case 'CatchClause': return CatchClause({param: readP(node.param), body: readP(node.body)});\n\
   \  case 'ConditionalExpression': return ConditionalExpression({test: readP(node.test), alternate: readP(node.alternate), consequent: readP(node.consequent)});\n\
   \  case 'ContinueStatement': return ContinueStatement({label: node.label == null ? Data_Maybe.Nothing : Data_Maybe.Just(readP(node.label))});\n\
@@ -200,7 +200,7 @@ foreign import readP
   \    }\n\
   \  case 'LogicalExpression': return LogicalExpression({operator: readLogicalOperator(node.operator), left: readP(node.left), right: readP(node.right)});\n\
   \  case 'MemberExpression': return MemberExpression({object: readP(node.object), property: readP(node.property), computed: !!node.computed});\n\
-  \  case 'NewExpression': return NewExpression({callee: readP(node.callee), arguments: [].map.call(node.arguments)});\n\
+  \  case 'NewExpression': return NewExpression({callee: readP(node.callee), arguments: [].map.call(node.arguments, readP)});\n\
   \  case 'ObjectExpression': return ObjectExpression({properties: [].map.call(node.properties, readObjectProperty)});\n\
   \  case 'Program': return Program({body: [].map.call(node.body, readP)});\n\
   \  case 'ReturnStatement': return ReturnStatement({argument: node.argument == null ? Data_Maybe.Nothing : Data_Maybe.Just(readP(node.argument))});\n\
@@ -597,7 +597,6 @@ instance showNode :: Show Node where
   show (VariableDeclarator a) = "<<VariableDeclarator id:" ++ show a.id ++ " init:" ++ show a.init ++ ">>"
   show (WhileStatement a) = "<<WhileStatement test:" ++ show a.test ++ " body:" ++ show a.body ++ ">>"
   show (WithStatement a) = "<<WithStatement object:" ++ show a.object ++ " body:" ++ show a.body ++ ">>"
-  show _ = "<<unknown>>"
 
 -- this will be in Data.String.Regex: https://github.com/purescript/purescript-strings/issues/3
 foreign import showRegexP
