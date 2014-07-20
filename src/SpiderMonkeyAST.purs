@@ -1,6 +1,5 @@
 module SpiderMonkeyAST (
   read,
-  readExpr,
   unread,
 
   SMAST(..),
@@ -114,7 +113,7 @@ foreign import readObjectPropertyKind
 
 foreign import readObjectProperty
   "function readObjectProperty(node) {\n\
-  \  return ObjectProperty({kind: readObjectPropertyKind(node.kind), key: readP(node.key), value: readP(node.value)});\n\
+  \  return ObjectProperty({kind: readObjectPropertyKind(node.kind), key: read(node.key), value: read(node.value)});\n\
   \}" :: SMAST -> ObjectProperty
 
 readAssignmentOperator :: String -> AssignmentOperator
@@ -168,28 +167,30 @@ readUpdateOperator "++" = UpdateOpIncrement
 readUpdateOperator "--" = UpdateOpDecrement
 
 foreign import readP
-  "function readP(node) {\n\
+  "function readP(Nothing) {\n\
+  \  return function (Just) {\n\
+  \  return function recurse(node) {\n\
   \  switch(node.type) {\n\
-  \  case 'ArrayExpression': return ArrayExpression({elements: [].map.call(node.elements, function(e){ return e == null ? Data_Maybe.Nothing : Data_Maybe.Just(readP(e)); })});\n\
-  \  case 'AssignmentExpression': return AssignmentExpression({operator: readAssignmentOperator(node.operator), left: readP(node.left), right: readP(node.right)});\n\
-  \  case 'BinaryExpression': return BinaryExpression({operator: readBinaryOperator(node.operator), left: readP(node.left), right: readP(node.right)});\n\
-  \  case 'BlockStatement': return BlockStatement({body: [].map.call(node.body, readP)});\n\
-  \  case 'BreakStatement': return BreakStatement({label: node.label == null ? Data_Maybe.Nothing : Data_Maybe.Just(readP(node.label))});\n\
-  \  case 'CallExpression': return CallExpression({callee: readP(node.callee), arguments: [].map.call(node.arguments, readP)});\n\
-  \  case 'CatchClause': return CatchClause({param: readP(node.param), body: readP(node.body)});\n\
-  \  case 'ConditionalExpression': return ConditionalExpression({test: readP(node.test), alternate: readP(node.alternate), consequent: readP(node.consequent)});\n\
-  \  case 'ContinueStatement': return ContinueStatement({label: node.label == null ? Data_Maybe.Nothing : Data_Maybe.Just(readP(node.label))});\n\
+  \  case 'ArrayExpression': return ArrayExpression({elements: [].map.call(node.elements, function(e){ return e == null ? Nothing : Just(recurse(e)); })});\n\
+  \  case 'AssignmentExpression': return AssignmentExpression({operator: readAssignmentOperator(node.operator), left: recurse(node.left), right: recurse(node.right)});\n\
+  \  case 'BinaryExpression': return BinaryExpression({operator: readBinaryOperator(node.operator), left: recurse(node.left), right: recurse(node.right)});\n\
+  \  case 'BlockStatement': return BlockStatement({body: [].map.call(node.body, recurse)});\n\
+  \  case 'BreakStatement': return BreakStatement({label: node.label == null ? Nothing : Just(recurse(node.label))});\n\
+  \  case 'CallExpression': return CallExpression({callee: recurse(node.callee), arguments: [].map.call(node.arguments, recurse)});\n\
+  \  case 'CatchClause': return CatchClause({param: recurse(node.param), body: recurse(node.body)});\n\
+  \  case 'ConditionalExpression': return ConditionalExpression({test: recurse(node.test), alternate: recurse(node.alternate), consequent: recurse(node.consequent)});\n\
+  \  case 'ContinueStatement': return ContinueStatement({label: node.label == null ? Nothing : Just(recurse(node.label))});\n\
   \  case 'DebuggerStatement': return DebuggerStatement;\n\
-  \  case 'DoWhileStatement': return DoWhileStatement({body: readP(node.body), test: readP(node.test)});\n\
+  \  case 'DoWhileStatement': return DoWhileStatement({body: recurse(node.body), test: recurse(node.test)});\n\
   \  case 'EmptyStatement': return EmptyStatement;\n\
-  \  case 'ExpressionStatement': return ExpressionStatement({expression: readP(node.expression)});\n\
-  \  case 'ForInStatement': return ForInStatement({left: readP(node.left), right: readP(node.right), body: readP(node.body)});\n\
-  \  case 'ForStatement': return ForStatement({init: node.init == null ? Data_Maybe.Nothing : Data_Maybe.Just(readP(node.init)), test: node.test == null ? Data_Maybe.Nothing : Data_Maybe.Just(readP(node.test)), update: node.update == null ? Data_Maybe.Nothing : Data_Maybe.Just(readP(node.update)), body: readP(node.body)});\n\
-  \  case 'FunctionDeclaration': return FunctionDeclaration({id: readP(node.id), params: [].map.call(node.params, readP), body: readP(node.body)});\n\
-  \  case 'FunctionExpression': return FunctionExpression({id: node.id == null ? Data_Maybe.Nothing : Data_Maybe.Just(readP(node.id)), params: [].map.call(node.params, readP), body: readP(node.body)});\n\
+  \  case 'ExpressionStatement': return ExpressionStatement({expression: recurse(node.expression)});\n\
+  \  case 'ForInStatement': return ForInStatement({left: recurse(node.left), right: recurse(node.right), body: recurse(node.body)});\n\
+  \  case 'ForStatement': return ForStatement({init: node.init == null ? Nothing : Just(recurse(node.init)), test: node.test == null ? Nothing : Just(recurse(node.test)), update: node.update == null ? Nothing : Just(recurse(node.update)), body: recurse(node.body)});\n\
+  \  case 'FunctionDeclaration': return FunctionDeclaration({id: recurse(node.id), params: [].map.call(node.params, recurse), body: recurse(node.body)});\n\
+  \  case 'FunctionExpression': return FunctionExpression({id: node.id == null ? Nothing : Just(recurse(node.id)), params: [].map.call(node.params, recurse), body: recurse(node.body)});\n\
   \  case 'Identifier': return Identifier({name: node.name});\n\
-  \  case 'IfStatement': return IfStatement({test: readP(node.test), consequent: readP(node.consequent), alternate: node.alternate == null ? Data_Maybe.Nothing : Data_Maybe.Just(readP(node.alternate))});\n\
-  \  case 'LabeledStatement': return LabeledStatement({label: readP(node.label), body: readP(node.body)});\n\
+  \  case 'IfStatement': return IfStatement({test: recurse(node.test), consequent: recurse(node.consequent), alternate: node.alternate == null ? Nothing : Just(recurse(node.alternate))});\n\
+  \  case 'LabeledStatement': return LabeledStatement({label: recurse(node.label), body: recurse(node.body)});\n\
   \  case 'Literal':\n\
   \    switch({}.toString.call(node.value)) {\n\
   \      case '[object Boolean]': return LiteralBoolean({value: node.value});\n\
@@ -198,38 +199,30 @@ foreign import readP
   \      case '[object RegExp]': return LiteralRegExp({value: node.value});\n\
   \      case '[object String]': return LiteralString({value: node.value});\n\
   \    }\n\
-  \  case 'LogicalExpression': return LogicalExpression({operator: readLogicalOperator(node.operator), left: readP(node.left), right: readP(node.right)});\n\
-  \  case 'MemberExpression': return MemberExpression({object: readP(node.object), property: readP(node.property), computed: !!node.computed});\n\
-  \  case 'NewExpression': return NewExpression({callee: readP(node.callee), arguments: [].map.call(node.arguments, readP)});\n\
+  \  case 'LogicalExpression': return LogicalExpression({operator: readLogicalOperator(node.operator), left: recurse(node.left), right: recurse(node.right)});\n\
+  \  case 'MemberExpression': return MemberExpression({object: recurse(node.object), property: recurse(node.property), computed: !!node.computed});\n\
+  \  case 'NewExpression': return NewExpression({callee: recurse(node.callee), arguments: [].map.call(node.arguments, recurse)});\n\
   \  case 'ObjectExpression': return ObjectExpression({properties: [].map.call(node.properties, readObjectProperty)});\n\
-  \  case 'Program': return Program({body: [].map.call(node.body, readP)});\n\
-  \  case 'ReturnStatement': return ReturnStatement({argument: node.argument == null ? Data_Maybe.Nothing : Data_Maybe.Just(readP(node.argument))});\n\
-  \  case 'SequenceExpression': return SequenceExpression({expressions: [].map.call(node.expressions, readP)});\n\
-  \  case 'SwitchCase': return SwitchCase({test: node.test == null ? Data_Maybe.Nothing : Data_Maybe.Just(readP(node.test)), consequent: [].map.call(node.consequent, readP)});\n\
-  \  case 'SwitchStatement': return SwitchStatement({discriminant: readP(node.discriminant), cases: [].map.call(node.cases, readP)});\n\
+  \  case 'Program': return Program({body: [].map.call(node.body, recurse)});\n\
+  \  case 'ReturnStatement': return ReturnStatement({argument: node.argument == null ? Nothing : Just(recurse(node.argument))});\n\
+  \  case 'SequenceExpression': return SequenceExpression({expressions: [].map.call(node.expressions, recurse)});\n\
+  \  case 'SwitchCase': return SwitchCase({test: node.test == null ? Nothing : Just(recurse(node.test)), consequent: [].map.call(node.consequent, recurse)});\n\
+  \  case 'SwitchStatement': return SwitchStatement({discriminant: recurse(node.discriminant), cases: [].map.call(node.cases, recurse)});\n\
   \  case 'ThisExpression': return ThisExpression;\n\
-  \  case 'ThrowStatement': return ThrowStatement({argument: readP(node.argument)});\n\
-  \  case 'TryStatement': return TryStatement({block: readP(node.block), handler: node.handler == null ? Data_Maybe.Nothing : Data_Maybe.Just(readP(node.handler)), finalizer: node.finalizer == null ? Data_Maybe.Nothing : Data_Maybe.Just(readP(node.finalizer))});\n\
-  \  case 'UnaryExpression': return UnaryExpression({operator: readUnaryOperator(node.operator), argument: readP(node.argument)});\n\
-  \  case 'UpdateExpression': return UpdateExpression({operator: readUpdateOperator(node.operator), argument: readP(node.argument), prefix: node.prefix});\n\
-  \  case 'VariableDeclaration': return VariableDeclaration({kind: readVarDeclKind(node.kind), declarations: [].map.call(node.declarations, readP)});\n\
-  \  case 'VariableDeclarator': return VariableDeclarator({id: readP(node.id), init: node.init == null ? Data_Maybe.Nothing : Data_Maybe.Just(readP(node.init))});\n\
-  \  case 'WhileStatement': return WhileStatement({test: readP(node.test), body: readP(node.body)});\n\
-  \  case 'WithStatement': return WithStatement({object: readP(node.object), body: readP(node.body)});\n\
+  \  case 'ThrowStatement': return ThrowStatement({argument: recurse(node.argument)});\n\
+  \  case 'TryStatement': return TryStatement({block: recurse(node.block), handler: node.handler == null ? Nothing : Just(recurse(node.handler)), finalizer: node.finalizer == null ? Nothing : Just(recurse(node.finalizer))});\n\
+  \  case 'UnaryExpression': return UnaryExpression({operator: readUnaryOperator(node.operator), argument: recurse(node.argument)});\n\
+  \  case 'UpdateExpression': return UpdateExpression({operator: readUpdateOperator(node.operator), argument: recurse(node.argument), prefix: node.prefix});\n\
+  \  case 'VariableDeclaration': return VariableDeclaration({kind: readVarDeclKind(node.kind), declarations: [].map.call(node.declarations, recurse)});\n\
+  \  case 'VariableDeclarator': return VariableDeclarator({id: recurse(node.id), init: node.init == null ? Nothing : Just(recurse(node.init))});\n\
+  \  case 'WhileStatement': return WhileStatement({test: recurse(node.test), body: recurse(node.body)});\n\
+  \  case 'WithStatement': return WithStatement({object: recurse(node.object), body: recurse(node.body)});\n\
   \  }\n\
   \  throw new TypeError('Unrecognised node type: ' + JSON.stringify(node.type));\n\
-  \}" :: SMAST -> Node
+  \}}}" :: forall a. Maybe a -> (a -> Maybe a) -> SMAST -> Node
 
-foreign import isValid "var isValid = require('esvalid').isValid" :: SMAST -> Boolean
-foreign import isValidExpr "var isValidExpr = require('esvalid').isValidExpr" :: SMAST -> Boolean
-
-read :: SMAST -> Maybe Node
-read a | isValid a = Just $ readP a
-read _ = Nothing
-
-readExpr :: SMAST -> Maybe Node
-readExpr a | isValidExpr a = Just $ readP a
-readExpr _ = Nothing
+read :: SMAST -> Node
+read = readP Nothing Just
 
 
 foreign import unreadNull "var unreadNull = null;" :: SMAST
