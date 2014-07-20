@@ -93,28 +93,20 @@ data Node
 foreign import data SMAST :: *
 
 
-foreign import readVarDeclKind
-  "function readVarDeclKind(kind) {\n\
-  \  switch (kind) {\n\
-  \  case 'var': return Var;\n\
-  \  case 'let': return Let;\n\
-  \  case 'const': return Const;\n\
-  \  }\n\
-  \}" :: String -> VarDeclKind
+readVarDeclKind :: String -> VarDeclKind
+readVarDeclKind "var" = Var
+readVarDeclKind "let" = Let
+readVarDeclKind "const" = Const
 
-foreign import readObjectPropertyKind
-  "function readObjectPropertyKind(kind) {\n\
-  \  switch (kind) {\n\
-  \  case 'init': return Init;\n\
-  \  case 'get': return Get;\n\
-  \  case 'set': return Set;\n\
-  \  }\n\
-  \}" :: String -> ObjectPropertyKind
+readObjectPropertyKind :: String -> ObjectPropertyKind
+readObjectPropertyKind "init" = Init
+readObjectPropertyKind "get" = Get
+readObjectPropertyKind "set" = Set
 
-foreign import readObjectProperty
-  "function readObjectProperty(node) {\n\
-  \  return ObjectProperty({kind: readObjectPropertyKind(node.kind), key: read(node.key), value: read(node.value)});\n\
-  \}" :: SMAST -> ObjectProperty
+foreign import readObjectPropertyP "function readObjectPropertyP(node) { return node; }" :: SMAST -> {kind :: String, key :: SMAST, value :: SMAST}
+readObjectProperty :: SMAST -> ObjectProperty
+readObjectProperty x = ObjectProperty {kind: readObjectPropertyKind(node.kind), key: read node.key, value: read node.value}
+  where node = readObjectPropertyP x
 
 readAssignmentOperator :: String -> AssignmentOperator
 readAssignmentOperator "=" = AssignOp
@@ -227,9 +219,7 @@ read = readP Nothing Just
 
 foreign import unreadNull "var unreadNull = null;" :: SMAST
 unreadMaybe :: Maybe Node -> SMAST
--- why can't this be point-free?
 unreadMaybe x = maybe unreadNull unread x
-
 
 unreadVarDeclKind Var = "var"
 unreadVarDeclKind Let = "let"
@@ -239,11 +229,7 @@ unreadObjectPropertyKind Init = "init"
 unreadObjectPropertyKind Get = "get"
 unreadObjectPropertyKind Set = "set"
 
-foreign import unreadObjectPropertyP
-  "function unreadObjectPropertyP(node) {\n\
-  \  return {kind: node.kind, key: node.key, value: node.value};\n\
-  \}" :: {kind :: String, key :: SMAST, value :: SMAST} -> SMAST
-
+foreign import unreadObjectPropertyP "function unreadObjectPropertyP(node) { return node; }" :: {kind :: String, key :: SMAST, value :: SMAST} -> SMAST
 unreadObjectProperty (ObjectProperty p) = unreadObjectPropertyP {kind: unreadObjectPropertyKind p.kind, key: unread p.key, value: unread p.value}
 
 unreadAssignmentOperator :: AssignmentOperator -> String
@@ -592,10 +578,7 @@ instance showNode :: Show Node where
   show (WithStatement a) = "<<WithStatement object:" ++ show a.object ++ " body:" ++ show a.body ++ ">>"
 
 -- this will be in Data.String.Regex: https://github.com/purescript/purescript-strings/issues/3
-foreign import showRegexP
-  "function showRegexP(r){\n\
-  \  return r.toString();\n\
-  \}" :: Regex -> String
+foreign import showRegexP "function showRegexP(r){ return '' + r; }" :: Regex -> String
 instance tmpShowRegex :: Show Regex where
   show = showRegexP
 
