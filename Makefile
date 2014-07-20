@@ -1,17 +1,36 @@
-default: build
+default: build doc
 all: build doc test
 
-build: lib/SpiderMonkeyAST/index.js
+build: lib/SpiderMonkeyAST.js
+doc: README.md
 
 BOWER_DEPS = $(shell find bower_components/purescript-*/src -name "*.purs" | sort)
+MOCHA = node_modules/.bin/mocha --inline-diffs --check-leaks -u tdd -R dot
 
-lib/SpiderMonkeyAST/externs.purs lib/SpiderMonkeyAST/index.js README.md: src/SpiderMonkeyAST.purs
-	psc-make --verbose-errors -o lib ${BOWER_DEPS} src/SpiderMonkeyAST.purs
-	docgen lib/SpiderMonkeyAST/externs.purs > README.md
+lib:
+	mkdir lib
 
-.PHONY: clean
+lib/SpiderMonkeyAST.js: src/SpiderMonkeyAST.purs lib
+	psc --verbose-errors \
+	  -m SpiderMonkeyAST \
+	  --browser-namespace exports \
+	  ${BOWER_DEPS} src/SpiderMonkeyAST.purs \
+	  > lib/SpiderMonkeyAST.js
+
+.PHONY: default all build doc clean test
+
+lib/SpiderMonkeyAST.externs.purs: src/SpiderMonkeyAST.purs lib
+	psc --verbose-errors \
+	  -m SpiderMonkeyAST \
+	  --codegen SpiderMonkeyAST \
+	  -e lib/SpiderMonkeyAST.externs.purs \
+	  ${BOWER_DEPS} src/SpiderMonkeyAST.purs \
+	  > /dev/null
+
+README.md: lib/SpiderMonkeyAST.externs.purs
+	docgen lib/SpiderMonkeyAST.externs.purs > README.md
 
 test: build
-	node_modules/.bin/mocha
+	${MOCHA}
 clean:
 	rm -rf lib

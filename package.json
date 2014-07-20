@@ -2,7 +2,7 @@
   "name": "purescript-spidermonkey-ast",
   "version": "0.0.0",
   "description": "PureScript bindings for Mozilla's SpiderMonkey AST format",
-  "main": "index.js",
+  "main": "lib/SpiderMonkeyAST.js",
   "scripts": {
     "test": "make test"
   },
@@ -29,6 +29,8 @@
     "esvalid": "0.0.2"
   },
   "devDependencies": {
+    "escodegen": "^1.3.3",
+    "esprima": "^1.2.2",
     "mocha": "^1.20.1"
   }
 }

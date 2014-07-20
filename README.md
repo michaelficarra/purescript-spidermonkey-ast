@@ -98,8 +98,6 @@
       Get :: ObjectPropertyKind
       Set :: ObjectPropertyKind
 
-    data SMAST :: *
-
     data UnaryOperator where
       UnaryOpMinus :: UnaryOperator
       UnaryOpPlus :: UnaryOperator
