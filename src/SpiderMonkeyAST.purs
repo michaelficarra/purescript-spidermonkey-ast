@@ -114,7 +114,7 @@ foreign import readObjectPropertyKind
 
 foreign import readObjectProperty
   "function readObjectProperty(node) {\n\
-  \  return ObjectProperty({node.kind: readObjectPropertyKind(node.kind), key: readP(node.key), value: readP(node.value)});\n\
+  \  return ObjectProperty({kind: readObjectPropertyKind(node.kind), key: readP(node.key), value: readP(node.value)});\n\
   \}" :: SMAST -> ObjectProperty
 
 readAssignmentOperator :: String -> AssignmentOperator
@@ -173,12 +173,12 @@ foreign import readP
   \  case 'ArrayExpression': return ArrayExpression({elements: [].map.call(node.elements, function(e){ return e == null ? Nothing : Just(readP(e)); })});\n\
   \  case 'AssignmentExpression': return AssignmentExpression({operator: readAssignmentOperator(node.operator), left: readP(node.left), right: readP(node.right)});\n\
   \  case 'BinaryExpression': return BinaryExpression({operator: readBinaryOperator(node.operator), left: readP(node.left), right: readP(node.right)});\n\
-  \  case 'BlockStatement': return BlockStatement({body: [].map.call(node.body, readP);});\n\
+  \  case 'BlockStatement': return BlockStatement({body: [].map.call(node.body, readP)});\n\
   \  case 'BreakStatement': return BreakStatement({label: node.label == null ? Nothing : Just(readP(node.label))});\n\
   \  case 'CallExpression': return CallExpression({callee: readP(node.callee), arguments: [].map.call(node.arguments)});\n\
   \  case 'CatchClause': return CatchClause({param: readP(node.param), body: readP(node.body)});\n\
   \  case 'ConditionalExpression': return ConditionalExpression({test: readP(node.test), alternate: readP(node.alternate), consequent: readP(node.consequent)});\n\
-  \  case 'ContinueStatement': return ContinueStatement({label: node.label == null ? Nothing : Just(readP(node.label));});\n\
+  \  case 'ContinueStatement': return ContinueStatement({label: node.label == null ? Nothing : Just(readP(node.label))});\n\
   \  case 'DebuggerStatement': return DebuggerStatement;\n\
   \  case 'DoWhileStatement': return DoWhileStatement({body: readP(node.body), test: readP(node.test)});\n\
   \  case 'EmptyStatement': return EmptyStatement;\n\
@@ -199,7 +199,7 @@ foreign import readP
   \  case 'MemberExpression': return MemberExpression({object: readP(node.object), property: readP(node.property), computed: !!node.computed});\n\
   \  case 'NewExpression': return NewExpression({callee: readP(node.callee), arguments: [].map.call(node.arguments)});\n\
   \  case 'ObjectExpression': return ObjectExpression({properties: [].map.call(node.properties, readObjectProperty)});\n\
-  \  case 'Program': return Program({body: [].map.call(node.body, readP);});\n\
+  \  case 'Program': return Program({body: [].map.call(node.body, readP)});\n\
   \  case 'ReturnStatement': return ReturnStatement({argument: node.argument == null ? Nothing : Just(readP(node.argument))});\n\
   \  case 'SequenceExpression': return SequenceExpression({expressions: [].map.call(node.expressions, readP)});\n\
   \  case 'SwitchCase': return SwitchCase({test: node.test == null ? Nothing : Just(readP(node.test)), consequent: [].map.call(node.consequent, readP)});\n\
@@ -338,7 +338,7 @@ foreign import unreadCatchClause
 
 foreign import unreadConditionalExpression
   "function unreadConditionalExpression(node) {\n\
-  \  return {type: 'ConditionalExpression', test: node.test, alternate: node.alternate, consequent, node.consequent};\n\
+  \  return {type: 'ConditionalExpression', test: node.test, alternate: node.alternate, consequent: node.consequent};\n\
   \}" :: {test :: SMAST, alternate :: SMAST, consequent :: SMAST} -> SMAST
 
 foreign import unreadContinueStatement
