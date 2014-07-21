@@ -163,52 +163,52 @@ foreign import readP
   \  return function (Just) {\n\
   \  return function recurse(node) {\n\
   \  switch(node.type) {\n\
-  \  case 'ArrayExpression': return ArrayExpression({elements: [].map.call(node.elements, function(e){ return e == null ? Nothing : Just(recurse(e)); })});\n\
-  \  case 'AssignmentExpression': return AssignmentExpression({operator: readAssignmentOperator(node.operator), left: recurse(node.left), right: recurse(node.right)});\n\
-  \  case 'BinaryExpression': return BinaryExpression({operator: readBinaryOperator(node.operator), left: recurse(node.left), right: recurse(node.right)});\n\
-  \  case 'BlockStatement': return BlockStatement({body: [].map.call(node.body, recurse)});\n\
-  \  case 'BreakStatement': return BreakStatement({label: node.label == null ? Nothing : Just(recurse(node.label))});\n\
-  \  case 'CallExpression': return CallExpression({callee: recurse(node.callee), arguments: [].map.call(node.arguments, recurse)});\n\
-  \  case 'CatchClause': return CatchClause({param: recurse(node.param), body: recurse(node.body)});\n\
-  \  case 'ConditionalExpression': return ConditionalExpression({test: recurse(node.test), alternate: recurse(node.alternate), consequent: recurse(node.consequent)});\n\
-  \  case 'ContinueStatement': return ContinueStatement({label: node.label == null ? Nothing : Just(recurse(node.label))});\n\
+  \  case 'ArrayExpression': return new ArrayExpression({elements: [].map.call(node.elements, function(e){ return e == null ? Nothing : Just(recurse(e)); })});\n\
+  \  case 'AssignmentExpression': return new AssignmentExpression({operator: readAssignmentOperator(node.operator), left: recurse(node.left), right: recurse(node.right)});\n\
+  \  case 'BinaryExpression': return new BinaryExpression({operator: readBinaryOperator(node.operator), left: recurse(node.left), right: recurse(node.right)});\n\
+  \  case 'BlockStatement': return new BlockStatement({body: [].map.call(node.body, recurse)});\n\
+  \  case 'BreakStatement': return new BreakStatement({label: node.label == null ? Nothing : Just(recurse(node.label))});\n\
+  \  case 'CallExpression': return new CallExpression({callee: recurse(node.callee), arguments: [].map.call(node.arguments, recurse)});\n\
+  \  case 'CatchClause': return new CatchClause({param: recurse(node.param), body: recurse(node.body)});\n\
+  \  case 'ConditionalExpression': return new ConditionalExpression({test: recurse(node.test), alternate: recurse(node.alternate), consequent: recurse(node.consequent)});\n\
+  \  case 'ContinueStatement': return new ContinueStatement({label: node.label == null ? Nothing : Just(recurse(node.label))});\n\
   \  case 'DebuggerStatement': return DebuggerStatement;\n\
-  \  case 'DoWhileStatement': return DoWhileStatement({body: recurse(node.body), test: recurse(node.test)});\n\
-  \  case 'EmptyStatement': return EmptyStatement;\n\
-  \  case 'ExpressionStatement': return ExpressionStatement({expression: recurse(node.expression)});\n\
-  \  case 'ForInStatement': return ForInStatement({left: recurse(node.left), right: recurse(node.right), body: recurse(node.body)});\n\
-  \  case 'ForStatement': return ForStatement({init: node.init == null ? Nothing : Just(recurse(node.init)), test: node.test == null ? Nothing : Just(recurse(node.test)), update: node.update == null ? Nothing : Just(recurse(node.update)), body: recurse(node.body)});\n\
-  \  case 'FunctionDeclaration': return FunctionDeclaration({id: recurse(node.id), params: [].map.call(node.params, recurse), body: recurse(node.body)});\n\
-  \  case 'FunctionExpression': return FunctionExpression({id: node.id == null ? Nothing : Just(recurse(node.id)), params: [].map.call(node.params, recurse), body: recurse(node.body)});\n\
-  \  case 'Identifier': return Identifier({name: node.name});\n\
-  \  case 'IfStatement': return IfStatement({test: recurse(node.test), consequent: recurse(node.consequent), alternate: node.alternate == null ? Nothing : Just(recurse(node.alternate))});\n\
-  \  case 'LabeledStatement': return LabeledStatement({label: recurse(node.label), body: recurse(node.body)});\n\
+  \  case 'DoWhileStatement': return new DoWhileStatement({body: recurse(node.body), test: recurse(node.test)});\n\
+  \  case 'EmptyStatement': return new EmptyStatement;\n\
+  \  case 'ExpressionStatement': return new ExpressionStatement({expression: recurse(node.expression)});\n\
+  \  case 'ForInStatement': return new ForInStatement({left: recurse(node.left), right: recurse(node.right), body: recurse(node.body)});\n\
+  \  case 'ForStatement': return new ForStatement({init: node.init == null ? Nothing : Just(recurse(node.init)), test: node.test == null ? Nothing : Just(recurse(node.test)), update: node.update == null ? Nothing : Just(recurse(node.update)), body: recurse(node.body)});\n\
+  \  case 'FunctionDeclaration': return new FunctionDeclaration({id: recurse(node.id), params: [].map.call(node.params, recurse), body: recurse(node.body)});\n\
+  \  case 'FunctionExpression': return new FunctionExpression({id: node.id == null ? Nothing : Just(recurse(node.id)), params: [].map.call(node.params, recurse), body: recurse(node.body)});\n\
+  \  case 'Identifier': return new Identifier({name: node.name});\n\
+  \  case 'IfStatement': return new IfStatement({test: recurse(node.test), consequent: recurse(node.consequent), alternate: node.alternate == null ? Nothing : Just(recurse(node.alternate))});\n\
+  \  case 'LabeledStatement': return new LabeledStatement({label: recurse(node.label), body: recurse(node.body)});\n\
   \  case 'Literal':\n\
   \    switch({}.toString.call(node.value)) {\n\
-  \      case '[object Boolean]': return LiteralBoolean({value: node.value});\n\
-  \      case '[object Null]': return LiteralNull;\n\
-  \      case '[object Number]': return LiteralNumber({value: node.value});\n\
-  \      case '[object RegExp]': return LiteralRegExp({value: node.value});\n\
-  \      case '[object String]': return LiteralString({value: node.value});\n\
+  \      case '[object Boolean]': return new LiteralBoolean({value: node.value});\n\
+  \      case '[object Null]': return new LiteralNull;\n\
+  \      case '[object Number]': return new LiteralNumber({value: node.value});\n\
+  \      case '[object RegExp]': return new LiteralRegExp({value: node.value});\n\
+  \      case '[object String]': return new LiteralString({value: node.value});\n\
   \    }\n\
-  \  case 'LogicalExpression': return LogicalExpression({operator: readLogicalOperator(node.operator), left: recurse(node.left), right: recurse(node.right)});\n\
-  \  case 'MemberExpression': return MemberExpression({object: recurse(node.object), property: recurse(node.property), computed: !!node.computed});\n\
-  \  case 'NewExpression': return NewExpression({callee: recurse(node.callee), arguments: [].map.call(node.arguments, recurse)});\n\
-  \  case 'ObjectExpression': return ObjectExpression({properties: [].map.call(node.properties, readObjectProperty)});\n\
-  \  case 'Program': return Program({body: [].map.call(node.body, recurse)});\n\
-  \  case 'ReturnStatement': return ReturnStatement({argument: node.argument == null ? Nothing : Just(recurse(node.argument))});\n\
-  \  case 'SequenceExpression': return SequenceExpression({expressions: [].map.call(node.expressions, recurse)});\n\
-  \  case 'SwitchCase': return SwitchCase({test: node.test == null ? Nothing : Just(recurse(node.test)), consequent: [].map.call(node.consequent, recurse)});\n\
-  \  case 'SwitchStatement': return SwitchStatement({discriminant: recurse(node.discriminant), cases: [].map.call(node.cases, recurse)});\n\
-  \  case 'ThisExpression': return ThisExpression;\n\
-  \  case 'ThrowStatement': return ThrowStatement({argument: recurse(node.argument)});\n\
-  \  case 'TryStatement': return TryStatement({block: recurse(node.block), handler: node.handler == null ? Nothing : Just(recurse(node.handler)), finalizer: node.finalizer == null ? Nothing : Just(recurse(node.finalizer))});\n\
-  \  case 'UnaryExpression': return UnaryExpression({operator: readUnaryOperator(node.operator), argument: recurse(node.argument)});\n\
-  \  case 'UpdateExpression': return UpdateExpression({operator: readUpdateOperator(node.operator), argument: recurse(node.argument), prefix: node.prefix});\n\
-  \  case 'VariableDeclaration': return VariableDeclaration({kind: readVarDeclKind(node.kind), declarations: [].map.call(node.declarations, recurse)});\n\
-  \  case 'VariableDeclarator': return VariableDeclarator({id: recurse(node.id), init: node.init == null ? Nothing : Just(recurse(node.init))});\n\
-  \  case 'WhileStatement': return WhileStatement({test: recurse(node.test), body: recurse(node.body)});\n\
-  \  case 'WithStatement': return WithStatement({object: recurse(node.object), body: recurse(node.body)});\n\
+  \  case 'LogicalExpression': return new LogicalExpression({operator: readLogicalOperator(node.operator), left: recurse(node.left), right: recurse(node.right)});\n\
+  \  case 'MemberExpression': return new MemberExpression({object: recurse(node.object), property: recurse(node.property), computed: !!node.computed});\n\
+  \  case 'NewExpression': return new NewExpression({callee: recurse(node.callee), arguments: [].map.call(node.arguments, recurse)});\n\
+  \  case 'ObjectExpression': return new ObjectExpression({properties: [].map.call(node.properties, readObjectProperty)});\n\
+  \  case 'Program': return new Program({body: [].map.call(node.body, recurse)});\n\
+  \  case 'ReturnStatement': return new ReturnStatement({argument: node.argument == null ? Nothing : Just(recurse(node.argument))});\n\
+  \  case 'SequenceExpression': return new SequenceExpression({expressions: [].map.call(node.expressions, recurse)});\n\
+  \  case 'SwitchCase': return new SwitchCase({test: node.test == null ? Nothing : Just(recurse(node.test)), consequent: [].map.call(node.consequent, recurse)});\n\
+  \  case 'SwitchStatement': return new SwitchStatement({discriminant: recurse(node.discriminant), cases: [].map.call(node.cases, recurse)});\n\
+  \  case 'ThisExpression': return new ThisExpression;\n\
+  \  case 'ThrowStatement': return new ThrowStatement({argument: recurse(node.argument)});\n\
+  \  case 'TryStatement': return new TryStatement({block: recurse(node.block), handler: node.handler == null ? Nothing : Just(recurse(node.handler)), finalizer: node.finalizer == null ? Nothing : Just(recurse(node.finalizer))});\n\
+  \  case 'UnaryExpression': return new UnaryExpression({operator: readUnaryOperator(node.operator), argument: recurse(node.argument)});\n\
+  \  case 'UpdateExpression': return new UpdateExpression({operator: readUpdateOperator(node.operator), argument: recurse(node.argument), prefix: node.prefix});\n\
+  \  case 'VariableDeclaration': return new VariableDeclaration({kind: readVarDeclKind(node.kind), declarations: [].map.call(node.declarations, recurse)});\n\
+  \  case 'VariableDeclarator': return new VariableDeclarator({id: recurse(node.id), init: node.init == null ? Nothing : Just(recurse(node.init))});\n\
+  \  case 'WhileStatement': return new WhileStatement({test: recurse(node.test), body: recurse(node.body)});\n\
+  \  case 'WithStatement': return new WithStatement({object: recurse(node.object), body: recurse(node.body)});\n\
   \  }\n\
   \  throw new TypeError('Unrecognised node type: ' + JSON.stringify(node.type));\n\
   \}}}" :: forall a. Maybe a -> (a -> Maybe a) -> SMAST -> Node
