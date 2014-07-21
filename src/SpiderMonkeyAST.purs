@@ -532,50 +532,9 @@ unread (WhileStatement a) = unreadWhileStatement {test: unread a.test, body: unr
 unread (WithStatement a) = unreadWithStatement {object: unread a.object, body: unread a.body}
 
 
+foreign import toJSON "function toJSON(a){ return JSON.stringify(a, null, 2); };" :: forall a. a -> String
 instance showNode :: Show Node where
-  show (ArrayExpression a) = "<<ArrayExpression elements:" ++ show a.elements ++ ">>"
-  show (AssignmentExpression a) = "<<AssignmentExpression operator:" ++ show a.operator ++ " left:" ++ show a.left ++ " right:" ++ show a.right ++ ">>"
-  show (BinaryExpression a) = "<<BinaryExpression operator:" ++ show a.operator ++ " left:" ++ show a.left ++ " right:" ++ show a.right ++ ">>"
-  show (BlockStatement a) = "<<BlockStatement body:" ++ show a.body ++ ">>"
-  show (BreakStatement a) = "<<BreakStatement label:" ++ show a.label ++ ">>"
-  show (CallExpression a) = "<<CallExpression callee:" ++ show a.callee ++ " arguments:" ++ show a.arguments ++ ">>"
-  show (CatchClause a) = "<<CatchClause param:" ++ show a.param ++ " body:" ++ show a.body ++ ">>"
-  show (ConditionalExpression a) = "<<ConditionalExpression test:" ++ show a.test ++ " alternate:" ++ show a.alternate ++ " consequent:" ++ show a.consequent ++ ">>"
-  show (ContinueStatement a) = "<<ContinueStatement label:" ++ show a.label ++ ">>"
-  show DebuggerStatement = "<<DebuggerStatement>>"
-  show (DoWhileStatement a) = "<<DoWhileStatement body:" ++ show a.body ++ " test:" ++ show a.test ++ ">>"
-  show EmptyStatement = "<<EmptyStatement>>"
-  show (ExpressionStatement a) = "<<ExpressionStatement expression:" ++ show a.expression ++ ">>"
-  show (ForInStatement a) = "<<ForInStatement left:" ++ show a.left ++ " right:" ++ show a.right ++ " body:" ++ show a.body ++ ">>"
-  show (ForStatement a) = "<<ForStatement init:" ++ show a.init ++ " test:" ++ show a.test ++ " update:" ++ show a.update ++ " body:" ++ show a.body ++ ">>"
-  show (FunctionDeclaration a) = "<<FunctionDeclaration id:" ++ show a.id ++ " params:" ++ show a.params ++ " body:" ++ show a.body ++ ">>"
-  show (FunctionExpression a) = "<<FunctionExpression id:" ++ show a.id ++ " params:" ++ show a.params ++ " body:" ++ show a.body ++ ">>"
-  show (Identifier a) = "<<Identifier name:" ++ show a.name ++ ">>"
-  show (IfStatement a) = "<<IfStatement test:" ++ show a.test ++ " consequent:" ++ show a.consequent ++ " alternate:" ++ show a.alternate ++ ">>"
-  show (LabeledStatement a) = "<<LabeledStatement label:" ++ show a.label ++ " body:" ++ show a.body ++ ">>"
-  show (LiteralBoolean a) = show a.value
-  show LiteralNull = "null"
-  show (LiteralNumber a) = show a.value
-  show (LiteralRegExp a) = show a.value
-  show (LiteralString a) = show a.value
-  show (LogicalExpression a) = "<<LogicalExpression operator:" ++ show a.operator ++ " left:" ++ show a.left ++ " right:" ++ show a.right ++ ">>"
-  show (MemberExpression a) = "<<MemberExpression object:" ++ show a.object ++ " property:" ++ show a.property ++ " computed:" ++ show a.computed ++ ">>"
-  show (NewExpression a) = "<<NewExpression callee:" ++ show a.callee ++ " arguments:" ++ show a.arguments ++ ">>"
-  show (ObjectExpression a) = "<<ObjectExpression properties:" ++ show a.properties ++ ">>"
-  show (Program a) = "<<Program body:" ++ show a.body ++ ">>"
-  show (ReturnStatement a) = "<<ReturnStatement argument:" ++ show a.argument ++ ">>"
-  show (SequenceExpression a) = "<<SequenceExpression expressions:" ++ show a.expressions ++ ">>"
-  show (SwitchCase a) = "<<SwitchCase test:" ++ show a.test ++ " consequent:" ++ show a.consequent ++ ">>"
-  show (SwitchStatement a) = "<<SwitchStatement discriminant:" ++ show a.discriminant ++ " cases:" ++ show a.cases ++ ">>"
-  show ThisExpression = "<<ThisExpression>>"
-  show (ThrowStatement a) = "<<ThrowStatement argument:" ++ show a.argument ++ ">>"
-  show (TryStatement a) = "<<TryStatement block:" ++ show a.block ++ " handler:" ++ show a.handler ++ " finalizer:" ++ show a.finalizer ++ ">>"
-  show (UnaryExpression a) = "<<UnaryExpression operator:" ++ show a.operator ++ " argument:" ++ show a.argument ++ ">>"
-  show (UpdateExpression a) = "<<UpdateExpression operator:" ++ show a.operator ++ " argument:" ++ show a.argument ++ " prefix:" ++ show a.prefix ++ ">>"
-  show (VariableDeclaration a) = "<<VariableDeclaration kind:" ++ show a.kind ++ " declarations:" ++ show a.declarations ++ ">>"
-  show (VariableDeclarator a) = "<<VariableDeclarator id:" ++ show a.id ++ " init:" ++ show a.init ++ ">>"
-  show (WhileStatement a) = "<<WhileStatement test:" ++ show a.test ++ " body:" ++ show a.body ++ ">>"
-  show (WithStatement a) = "<<WithStatement object:" ++ show a.object ++ " body:" ++ show a.body ++ ">>"
+  show a = toJSON $ unread a
 
 -- this will be in Data.String.Regex: https://github.com/purescript/purescript-strings/issues/3
 foreign import showRegexP "function showRegexP(r){ return '' + r; }" :: Regex -> String
