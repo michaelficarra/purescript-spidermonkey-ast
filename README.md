@@ -119,9 +119,7 @@
 
 ### Values
 
-    read :: SpiderMonkeyAST.SMAST -> Data.Maybe.Maybe SpiderMonkeyAST.Node
-
-    readExpr :: SpiderMonkeyAST.SMAST -> Data.Maybe.Maybe SpiderMonkeyAST.Node
+    read :: SpiderMonkeyAST.SMAST -> SpiderMonkeyAST.Node
 
     unread :: SpiderMonkeyAST.Node -> SpiderMonkeyAST.SMAST
 
