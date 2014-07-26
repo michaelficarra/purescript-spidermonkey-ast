@@ -158,63 +158,215 @@ readUnaryOperator "delete" = UnaryOpDelete
 readUpdateOperator "++" = UpdateOpIncrement
 readUpdateOperator "--" = UpdateOpDecrement
 
-foreign import readP
-  "function readP(Nothing) {\n\
-  \  return function (Just) {\n\
-  \  return function recurse(node) {\n\
-  \  switch(node.type) {\n\
-  \  case 'ArrayExpression': return ArrayExpression({elements: [].map.call(node.elements, function(e){ return e == null ? Nothing : Just(recurse(e)); })});\n\
-  \  case 'AssignmentExpression': return AssignmentExpression({operator: readAssignmentOperator(node.operator), left: recurse(node.left), right: recurse(node.right)});\n\
-  \  case 'BinaryExpression': return BinaryExpression({operator: readBinaryOperator(node.operator), left: recurse(node.left), right: recurse(node.right)});\n\
-  \  case 'BlockStatement': return BlockStatement({body: [].map.call(node.body, recurse)});\n\
-  \  case 'BreakStatement': return BreakStatement({label: node.label == null ? Nothing : Just(recurse(node.label))});\n\
-  \  case 'CallExpression': return CallExpression({callee: recurse(node.callee), arguments: [].map.call(node.arguments, recurse)});\n\
-  \  case 'CatchClause': return CatchClause({param: recurse(node.param), body: recurse(node.body)});\n\
-  \  case 'ConditionalExpression': return ConditionalExpression({test: recurse(node.test), alternate: recurse(node.alternate), consequent: recurse(node.consequent)});\n\
-  \  case 'ContinueStatement': return ContinueStatement({label: node.label == null ? Nothing : Just(recurse(node.label))});\n\
-  \  case 'DebuggerStatement': return DebuggerStatement;\n\
-  \  case 'DoWhileStatement': return DoWhileStatement({body: recurse(node.body), test: recurse(node.test)});\n\
-  \  case 'EmptyStatement': return EmptyStatement;\n\
-  \  case 'ExpressionStatement': return ExpressionStatement({expression: recurse(node.expression)});\n\
-  \  case 'ForInStatement': return ForInStatement({left: recurse(node.left), right: recurse(node.right), body: recurse(node.body)});\n\
-  \  case 'ForStatement': return ForStatement({init: node.init == null ? Nothing : Just(recurse(node.init)), test: node.test == null ? Nothing : Just(recurse(node.test)), update: node.update == null ? Nothing : Just(recurse(node.update)), body: recurse(node.body)});\n\
-  \  case 'FunctionDeclaration': return FunctionDeclaration({id: recurse(node.id), params: [].map.call(node.params, recurse), body: recurse(node.body)});\n\
-  \  case 'FunctionExpression': return FunctionExpression({id: node.id == null ? Nothing : Just(recurse(node.id)), params: [].map.call(node.params, recurse), body: recurse(node.body)});\n\
-  \  case 'Identifier': return Identifier({name: node.name});\n\
-  \  case 'IfStatement': return IfStatement({test: recurse(node.test), consequent: recurse(node.consequent), alternate: node.alternate == null ? Nothing : Just(recurse(node.alternate))});\n\
-  \  case 'LabeledStatement': return LabeledStatement({label: recurse(node.label), body: recurse(node.body)});\n\
-  \  case 'Literal':\n\
-  \    switch({}.toString.call(node.value)) {\n\
-  \      case '[object Boolean]': return LiteralBoolean({value: node.value});\n\
-  \      case '[object Null]': return LiteralNull;\n\
-  \      case '[object Number]': return LiteralNumber({value: node.value});\n\
-  \      case '[object RegExp]': return LiteralRegExp({value: node.value});\n\
-  \      case '[object String]': return LiteralString({value: node.value});\n\
-  \    }\n\
-  \  case 'LogicalExpression': return LogicalExpression({operator: readLogicalOperator(node.operator), left: recurse(node.left), right: recurse(node.right)});\n\
-  \  case 'MemberExpression': return MemberExpression({object: recurse(node.object), property: recurse(node.property), computed: !!node.computed});\n\
-  \  case 'NewExpression': return NewExpression({callee: recurse(node.callee), arguments: [].map.call(node.arguments, recurse)});\n\
-  \  case 'ObjectExpression': return ObjectExpression({properties: [].map.call(node.properties, readObjectProperty)});\n\
-  \  case 'Program': return Program({body: [].map.call(node.body, recurse)});\n\
-  \  case 'ReturnStatement': return ReturnStatement({argument: node.argument == null ? Nothing : Just(recurse(node.argument))});\n\
-  \  case 'SequenceExpression': return SequenceExpression({expressions: [].map.call(node.expressions, recurse)});\n\
-  \  case 'SwitchCase': return SwitchCase({test: node.test == null ? Nothing : Just(recurse(node.test)), consequent: [].map.call(node.consequent, recurse)});\n\
-  \  case 'SwitchStatement': return SwitchStatement({discriminant: recurse(node.discriminant), cases: [].map.call(node.cases, recurse)});\n\
-  \  case 'ThisExpression': return ThisExpression;\n\
-  \  case 'ThrowStatement': return ThrowStatement({argument: recurse(node.argument)});\n\
-  \  case 'TryStatement': return TryStatement({block: recurse(node.block), handler: node.handler == null ? Nothing : Just(recurse(node.handler)), finalizer: node.finalizer == null ? Nothing : Just(recurse(node.finalizer))});\n\
-  \  case 'UnaryExpression': return UnaryExpression({operator: readUnaryOperator(node.operator), argument: recurse(node.argument)});\n\
-  \  case 'UpdateExpression': return UpdateExpression({operator: readUpdateOperator(node.operator), argument: recurse(node.argument), prefix: node.prefix});\n\
-  \  case 'VariableDeclaration': return VariableDeclaration({kind: readVarDeclKind(node.kind), declarations: [].map.call(node.declarations, recurse)});\n\
-  \  case 'VariableDeclarator': return VariableDeclarator({id: recurse(node.id), init: node.init == null ? Nothing : Just(recurse(node.init))});\n\
-  \  case 'WhileStatement': return WhileStatement({test: recurse(node.test), body: recurse(node.body)});\n\
-  \  case 'WithStatement': return WithStatement({object: recurse(node.object), body: recurse(node.body)});\n\
-  \  }\n\
-  \  throw new TypeError('Unrecognised node type: ' + JSON.stringify(node.type));\n\
-  \}}}" :: forall a. Maybe a -> (a -> Maybe a) -> SMAST -> Node
+foreign import throwTypeError "function throwTypeError(msg) { throw new TypeError(msg); }" :: forall a. String ->  a
+
+foreign import fromNullP
+  "function fromNullP(Nothing) {\n\
+  \return function (Just) {\n\
+  \return function (x) {\n\
+  \  return x == null ? Nothing : Just(x);\n\
+  \};};}" :: forall a. Maybe a -> (a -> Maybe a) -> a -> Maybe a
+fromNull = fromNullP Nothing Just
+
+foreign import getClass "function getClass(x) { return {}.toString.call(x); }" :: forall a. a -> String
+foreign import get "function get(p) { return function(o) { return o[p]; }; }" :: forall a. String -> SMAST -> a
+foreign import toBool "function toBool(x) { return !!x; }" :: forall a. a -> Boolean
+getType = get "type"
 
 read :: SMAST -> Node
-read = readP Nothing Just
+read node = case getType node of
+
+  "ArrayExpression" -> ArrayExpression {
+      elements: (\x -> read <$> x) <$> (fromNull <$> get "elements" node)
+    }
+
+  "AssignmentExpression" -> AssignmentExpression {
+      operator: readAssignmentOperator $ get "operator" node,
+      left: read $ get "left" node,
+      right: read $ get "right" node
+    }
+
+  "BinaryExpression" -> BinaryExpression {
+      operator: readBinaryOperator $ get "operator" node,
+      left: read $ get "left" node,
+      right: read $ get "right" node
+    }
+
+  "BlockStatement" -> BlockStatement {
+      body: read <$> get "body" node
+    }
+
+  "BreakStatement" -> BreakStatement {
+      label: read <$> fromNull (get "label" node)
+    }
+
+  "CallExpression" -> CallExpression {
+      callee: read $ get "callee" node,
+      arguments: read <$> get "arguments" node
+    }
+
+  "CatchClause" -> CatchClause {
+      param: read $ get "param" node,
+      body: read $ get "body" node
+    }
+
+  "ConditionalExpression" -> ConditionalExpression {
+      test: read $ get "test" node,
+      alternate: read $ get "alternate" node,
+      consequent: read $ get "consequent" node
+    }
+
+  "ContinueStatement" -> ContinueStatement {
+      label: read <$> fromNull (get "label" node)
+    }
+
+  "DebuggerStatement" -> DebuggerStatement
+
+  "DoWhileStatement" -> DoWhileStatement {
+      body: read $ get "body" node,
+      test: read $ get "test" node
+    }
+
+  "EmptyStatement" -> EmptyStatement
+
+  "ExpressionStatement" -> ExpressionStatement {
+      expression: read $ get "expression" node
+    }
+
+  "ForInStatement" -> ForInStatement {
+      left: read $ get "left" node,
+      right: read $ get "right" node,
+      body: read $ get "body" node
+    }
+
+  "ForStatement" -> ForStatement {
+      init: read <$> fromNull (get "init" node),
+      test: read <$> fromNull (get "test" node),
+      update: read <$> fromNull (get "update" node),
+      body: read $ get "body" node
+    }
+
+  "FunctionDeclaration" -> FunctionDeclaration {
+      id: read $ get "id" node,
+      params: read <$> get "params" node,
+      body: read $ get "body" node
+    }
+
+  "FunctionExpression" -> FunctionExpression {
+      id: read <$> fromNull (get "id" node),
+      params: read <$> get "params" node,
+      body: read $ get "body" node
+    }
+
+  "Identifier" -> Identifier {
+      name: get "name" node
+    }
+
+  "IfStatement" -> IfStatement {
+      test: read $ get "test" node,
+      consequent: read $ get "consequent" node,
+      alternate: read <$> fromNull (get "alternate" node)
+    }
+
+  "LabeledStatement" -> LabeledStatement {
+      label: read $ get "label" node,
+      body: read $ get "body" node
+    }
+
+  "Literal" -> case getClass (get "value" node) of
+    "[object Boolean]" -> LiteralBoolean {value: toBool $ get "value" node}
+    "[object Null]" -> LiteralNull
+    "[object Number]" -> LiteralNumber {value: get "value" node}
+    "[object RegExp]" -> LiteralRegExp {value: get "value" node}
+    "[object String]" -> LiteralString {value: get "value" node}
+
+  "LogicalExpression" -> LogicalExpression {
+      operator: readLogicalOperator $ get "operator" node,
+      left: read $ get "left" node,
+      right: read $ get "right" node
+    }
+
+  "MemberExpression" -> MemberExpression {
+      object: read $ get "object" node,
+      property: read $ get "property" node,
+      computed: toBool $ get "computed" node
+    }
+
+  "NewExpression" -> NewExpression {
+      callee: read $ get "callee" node,
+      arguments: read <$> get "arguments" node
+    }
+
+  "ObjectExpression" -> ObjectExpression {
+      properties: readObjectProperty <$> get "properties" node
+    }
+
+  "Program" -> Program {
+      body: read <$> get "body" node
+    }
+
+  "ReturnStatement" -> ReturnStatement {
+      argument: read <$> fromNull (get "argument" node)
+    }
+
+  "SequenceExpression" -> SequenceExpression {
+      expressions: read <$> get "expressions" node
+    }
+
+  "SwitchCase" -> SwitchCase {
+      test: read <$> fromNull (get "test" node),
+      consequent: read <$> get "consequent" node
+    }
+
+  "SwitchStatement" -> SwitchStatement {
+      discriminant: read $ get "discriminant" node,
+      cases: read <$> get "cases" node
+    }
+
+  "ThisExpression" -> ThisExpression
+
+  "ThrowStatement" -> ThrowStatement {
+      argument: read $ get "argument" node
+    }
+
+  "TryStatement" -> TryStatement {
+      block: read $ get "block" node,
+      handler: read <$> fromNull (get "handler" node),
+      finalizer: read <$> fromNull (get "finalizer" node)
+    }
+
+  "UnaryExpression" -> UnaryExpression {
+      operator: readUnaryOperator $ get "operator" node,
+      argument: read $ get "argument" node
+    }
+
+  "UpdateExpression" -> UpdateExpression {
+      operator: readUpdateOperator $ get "operator" node,
+      argument: read $ get "argument" node,
+      prefix: toBool $ get "prefix" node
+    }
+
+  "VariableDeclaration" -> VariableDeclaration {
+      kind: readVarDeclKind $ get "kind" node,
+      declarations: read <$> get "declarations" node
+    }
+
+  "VariableDeclarator" -> VariableDeclarator {
+      id: read $ get "id" node,
+      init: read <$> fromNull (get "init" node)
+    }
+
+  "WhileStatement" -> WhileStatement {
+      test: read $ get "test" node,
+      body: read $ get "body" node
+    }
+
+  "WithStatement" -> WithStatement {
+      object: read $ get "object" node,
+      body: read $ get "body" node
+    }
+
+  _ -> throwTypeError $ "Unrecognised node type: " ++ getType node
 
 
 foreign import unreadNull "var unreadNull = null;" :: SMAST
