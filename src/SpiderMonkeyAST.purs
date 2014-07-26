@@ -482,28 +482,3 @@ unread (WithStatement a) = unreadP {
 foreign import toJSON "function toJSON(a){ return JSON.stringify(a, null, 2); };" :: forall a. a -> String
 instance showNode :: Show Node where
   show a = toJSON $ unread a
-
--- this will be in Data.String.Regex: https://github.com/purescript/purescript-strings/issues/3
-foreign import showRegexP "function showRegexP(r){ return '' + r; }" :: Regex -> String
-instance tmpShowRegex :: Show Regex where
-  show = showRegexP
-
-instance showVarDeclKind :: Show VarDeclKind where
-  show x = show $ unreadVarDeclKind x
-
-instance showObjectPropertyKind :: Show ObjectPropertyKind where
-  show x = show $ unreadObjectPropertyKind x
-
-instance showObjectProperty :: Show ObjectProperty where
-  show (ObjectProperty a) = "<<Property kind:" ++ show a.kind ++ " key:" ++ show a.key ++ " value:" ++ show a.value ++ ">>"
-
-instance showAssignmentOperator :: Show AssignmentOperator where
-  show x = show $ unreadAssignmentOperator x
-instance showBinaryOperator :: Show BinaryOperator where
-  show x = show $ unreadBinaryOperator x
-instance showLogicalOperator :: Show LogicalOperator where
-  show x = show $ unreadLogicalOperator x
-instance showUnaryOperator :: Show UnaryOperator where
-  show x = show $ unreadUnaryOperator x
-instance showUpdateOperator :: Show UpdateOperator where
-  show x = show $ unreadUpdateOperator x
