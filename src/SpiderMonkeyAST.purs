@@ -25,7 +25,7 @@ import Data.String.Regex (Regex(..))
 
 data VarDeclKind = Var | Let | Const
 data ObjectPropertyKind = Init | Get | Set
-data ObjectProperty = ObjectProperty {kind :: ObjectPropertyKind, key :: Node, value :: Node}
+data ObjectProperty = ObjectProperty { kind :: ObjectPropertyKind, key :: Node, value :: Node }
 
 data AssignmentOperator
   = AssignOp | AssignOpPlus | AssignOpMinus | AssignOpMul | AssignOpDiv | AssignOpMod
@@ -45,49 +45,49 @@ data UnaryOperator
 data UpdateOperator = UpdateOpIncrement | UpdateOpDecrement
 
 data Node
-  = ArrayExpression {elements :: [Maybe Node]}
-  | AssignmentExpression {operator :: AssignmentOperator, left :: Node, right :: Node}
-  | BinaryExpression {operator :: BinaryOperator, left :: Node, right :: Node}
-  | BlockStatement {body :: [Node]}
-  | BreakStatement {label :: Maybe Node}
-  | CallExpression {callee :: Node, arguments :: [Node]}
-  | CatchClause {param :: Node, body :: Node}
-  | ConditionalExpression {test :: Node, alternate :: Node, consequent :: Node}
-  | ContinueStatement {label :: Maybe Node}
+  = ArrayExpression { elements :: [Maybe Node] }
+  | AssignmentExpression { operator :: AssignmentOperator, left :: Node, right :: Node }
+  | BinaryExpression { operator :: BinaryOperator, left :: Node, right :: Node }
+  | BlockStatement { body :: [Node] }
+  | BreakStatement { label :: Maybe Node }
+  | CallExpression { callee :: Node, arguments :: [Node] }
+  | CatchClause { param :: Node, body :: Node }
+  | ConditionalExpression { test :: Node, alternate :: Node, consequent :: Node }
+  | ContinueStatement { label :: Maybe Node }
   | DebuggerStatement
-  | DoWhileStatement {body :: Node, test :: Node}
+  | DoWhileStatement { body :: Node, test :: Node }
   | EmptyStatement
-  | ExpressionStatement {expression :: Node}
-  | ForInStatement {left :: Node, right :: Node, body :: Node}
-  | ForStatement {init :: Maybe Node, test :: Maybe Node, update :: Maybe Node, body :: Node}
-  | FunctionDeclaration {id :: Node, params :: [Node], body :: Node}
-  | FunctionExpression {id :: Maybe Node, params :: [Node], body :: Node}
-  | Identifier {name :: String}
-  | IfStatement {test :: Node, consequent :: Node, alternate :: Maybe Node}
-  | LabeledStatement {label :: Node, body :: Node}
-  | LiteralBoolean {value :: Boolean}
+  | ExpressionStatement { expression :: Node }
+  | ForInStatement { left :: Node, right :: Node, body :: Node }
+  | ForStatement { init :: Maybe Node, test :: Maybe Node, update :: Maybe Node, body :: Node }
+  | FunctionDeclaration { id :: Node, params :: [Node], body :: Node }
+  | FunctionExpression { id :: Maybe Node, params :: [Node], body :: Node }
+  | Identifier { name :: String }
+  | IfStatement { test :: Node, consequent :: Node, alternate :: Maybe Node }
+  | LabeledStatement { label :: Node, body :: Node }
+  | LiteralBoolean { value :: Boolean }
   | LiteralNull
-  | LiteralNumber {value :: Number}
-  | LiteralRegExp {value :: Regex}
-  | LiteralString {value :: String}
-  | LogicalExpression {operator :: LogicalOperator, left :: Node, right :: Node}
-  | MemberExpression {object :: Node, property :: Node, computed :: Boolean}
-  | NewExpression {callee :: Node, arguments :: [Node]}
-  | ObjectExpression {properties :: [ObjectProperty]}
-  | Program {body :: [Node]}
-  | ReturnStatement {argument :: Maybe Node}
-  | SequenceExpression {expressions :: [Node]}
-  | SwitchCase {test :: Maybe Node, consequent :: [Node]}
-  | SwitchStatement {discriminant :: Node, cases :: [Node]}
+  | LiteralNumber { value :: Number }
+  | LiteralRegExp { value :: Regex }
+  | LiteralString { value :: String }
+  | LogicalExpression { operator :: LogicalOperator, left :: Node, right :: Node }
+  | MemberExpression { object :: Node, property :: Node, computed :: Boolean }
+  | NewExpression { callee :: Node, arguments :: [Node] }
+  | ObjectExpression { properties :: [ObjectProperty] }
+  | Program { body :: [Node] }
+  | ReturnStatement { argument :: Maybe Node }
+  | SequenceExpression { expressions :: [Node] }
+  | SwitchCase { test :: Maybe Node, consequent :: [Node] }
+  | SwitchStatement { discriminant :: Node, cases :: [Node] }
   | ThisExpression
-  | ThrowStatement {argument :: Node}
-  | TryStatement {block :: Node, handler :: Maybe Node, finalizer :: Maybe Node}
-  | UnaryExpression {operator :: UnaryOperator, argument :: Node}
-  | UpdateExpression {operator :: UpdateOperator, argument :: Node, prefix :: Boolean}
-  | VariableDeclaration {kind :: VarDeclKind, declarations :: [Node]}
-  | VariableDeclarator {id :: Node, init :: Maybe Node}
-  | WhileStatement {test :: Node, body :: Node}
-  | WithStatement {object :: Node, body :: Node}
+  | ThrowStatement { argument :: Node }
+  | TryStatement { block :: Node, handler :: Maybe Node, finalizer :: Maybe Node }
+  | UnaryExpression { operator :: UnaryOperator, argument :: Node }
+  | UpdateExpression { operator :: UpdateOperator, argument :: Node, prefix :: Boolean }
+  | VariableDeclaration { kind :: VarDeclKind, declarations :: [Node] }
+  | VariableDeclarator { id :: Node, init :: Maybe Node }
+  | WhileStatement { test :: Node, body :: Node }
+  | WithStatement { object :: Node, body :: Node }
 
 
 foreign import data SMAST :: *
@@ -103,9 +103,9 @@ readObjectPropertyKind "init" = Init
 readObjectPropertyKind "get" = Get
 readObjectPropertyKind "set" = Set
 
-foreign import readObjectPropertyP "function readObjectPropertyP(node) { return node; }" :: SMAST -> {kind :: String, key :: SMAST, value :: SMAST}
+foreign import readObjectPropertyP "function readObjectPropertyP(node) { return node; }" :: SMAST -> { kind :: String, key :: SMAST, value :: SMAST }
 readObjectProperty :: SMAST -> ObjectProperty
-readObjectProperty x = ObjectProperty {kind: readObjectPropertyKind(node.kind), key: read node.key, value: read node.value}
+readObjectProperty x = ObjectProperty { kind: readObjectPropertyKind(node.kind), key: read node.key, value: read node.value }
   where node = readObjectPropertyP x
 
 readAssignmentOperator :: String -> AssignmentOperator
@@ -274,11 +274,11 @@ read node = case getType node of
     }
 
   "Literal" -> case getClass (get "value" node) of
-    "[object Boolean]" -> LiteralBoolean {value: toBool $ get "value" node}
+    "[object Boolean]" -> LiteralBoolean { value: toBool $ get "value" node }
     "[object Null]" -> LiteralNull
-    "[object Number]" -> LiteralNumber {value: get "value" node}
-    "[object RegExp]" -> LiteralRegExp {value: get "value" node}
-    "[object String]" -> LiteralString {value: get "value" node}
+    "[object Number]" -> LiteralNumber { value: get "value" node }
+    "[object RegExp]" -> LiteralRegExp { value: get "value" node }
+    "[object String]" -> LiteralString { value: get "value" node }
 
   "LogicalExpression" -> LogicalExpression {
       operator: readLogicalOperator $ get "operator" node,
@@ -381,8 +381,8 @@ unreadObjectPropertyKind Init = "init"
 unreadObjectPropertyKind Get = "get"
 unreadObjectPropertyKind Set = "set"
 
-foreign import unreadObjectPropertyP "function unreadObjectPropertyP(node) { return node; }" :: {kind :: String, key :: SMAST, value :: SMAST} -> SMAST
-unreadObjectProperty (ObjectProperty p) = unreadObjectPropertyP {kind: unreadObjectPropertyKind p.kind, key: unread p.key, value: unread p.value}
+foreign import unreadObjectPropertyP "function unreadObjectPropertyP(node) { return node; }" :: { kind :: String, key :: SMAST, value :: SMAST } -> SMAST
+unreadObjectProperty (ObjectProperty p) = unreadObjectPropertyP { kind: unreadObjectPropertyKind p.kind, key: unread p.key, value: unread p.value }
 
 unreadAssignmentOperator :: AssignmentOperator -> String
 unreadAssignmentOperator AssignOp = "="
@@ -439,7 +439,10 @@ foreign import unreadP "function unreadP(x) { return x; }" :: forall a. { "type"
 
 unread :: Node -> SMAST
 
-unread (ArrayExpression a) = unreadP {"type": "ArrayExpression", elements: map unreadMaybe a.elements}
+unread (ArrayExpression a) = unreadP {
+    "type": "ArrayExpression",
+    elements: map unreadMaybe a.elements
+  }
 
 unread (AssignmentExpression a) = unreadP {
     "type": "AssignmentExpression",
@@ -455,9 +458,15 @@ unread (BinaryExpression a) = unreadP {
     right: unread a.right
   }
 
-unread (BlockStatement a) = unreadP {"type": "BlockStatement", body: map unread a.body}
+unread (BlockStatement a) = unreadP {
+    "type": "BlockStatement",
+    body: map unread a.body
+  }
 
-unread (BreakStatement a) = unreadP {"type": "BreakStatement", label: unreadMaybe a.label}
+unread (BreakStatement a) = unreadP {
+    "type": "BreakStatement",
+    label: unreadMaybe a.label
+  }
 
 unread (CallExpression a) = unreadP {
     "type": "CallExpression",
@@ -478,9 +487,14 @@ unread (ConditionalExpression a) = unreadP {
     consequent: unread a.consequent
   }
 
-unread (ContinueStatement a) = unreadP {"type": "ContinueStatement", label: unreadMaybe a.label}
+unread (ContinueStatement a) = unreadP {
+    "type": "ContinueStatement",
+    label: unreadMaybe a.label
+  }
 
-unread DebuggerStatement = unreadP {"type": "DebuggerStatement"}
+unread DebuggerStatement = unreadP {
+    "type": "DebuggerStatement"
+  }
 
 unread (DoWhileStatement a) = unreadP {
     "type": "DoWhileStatement",
@@ -488,9 +502,14 @@ unread (DoWhileStatement a) = unreadP {
     test: unread a.test
   }
 
-unread EmptyStatement = unreadP {"type": "EmptyStatement"}
+unread EmptyStatement = unreadP {
+    "type": "EmptyStatement"
+  }
 
-unread (ExpressionStatement a) = unreadP {"type": "ExpressionStatement", expression: unread a.expression}
+unread (ExpressionStatement a) = unreadP {
+    "type": "ExpressionStatement",
+    expression: unread a.expression
+  }
 
 unread (ForInStatement a) = unreadP {
     "type": "ForInStatement",
@@ -521,7 +540,9 @@ unread (FunctionExpression a) = unreadP {
     body: unread a.body
   }
 
-unread (Identifier a) = unreadP {"type": "Identifier", name: a.name}
+unread (Identifier a) = unreadP {
+    "type": "Identifier", name: a.name
+  }
 
 unread (IfStatement a) = unreadP {
     "type": "IfStatement",
@@ -536,11 +557,11 @@ unread (LabeledStatement a) = unreadP {
     body: unread a.body
   }
 
-unread (LiteralBoolean a) = unreadP {"type": "Literal", value: a.value}
-unread LiteralNull = unreadP {"type": "Literal", value: unreadNull}
-unread (LiteralNumber a) = unreadP {"type": "Literal", value: a.value}
-unread (LiteralRegExp a) = unreadP {"type": "Literal", value: a.value}
-unread (LiteralString a) = unreadP {"type": "Literal", value: a.value}
+unread (LiteralBoolean a) = unreadP { "type": "Literal", value: a.value }
+unread LiteralNull = unreadP { "type": "Literal", value: unreadNull }
+unread (LiteralNumber a) = unreadP { "type": "Literal", value: a.value }
+unread (LiteralRegExp a) = unreadP { "type": "Literal", value: a.value }
+unread (LiteralString a) = unreadP { "type": "Literal", value: a.value }
 
 unread (LogicalExpression a) = unreadP {
     "type": "LogicalExpression",
@@ -562,13 +583,25 @@ unread (NewExpression a) = unreadP {
     arguments: map unread a.arguments
   }
 
-unread (ObjectExpression a) = unreadP {"type": "ObjectExpression", properties: map unreadObjectProperty a.properties}
+unread (ObjectExpression a) = unreadP {
+    "type": "ObjectExpression",
+    properties: map unreadObjectProperty a.properties
+  }
 
-unread (Program a) = unreadP {"type": "Program", body: map unread a.body}
+unread (Program a) = unreadP {
+    "type": "Program",
+    body: map unread a.body
+  }
 
-unread (ReturnStatement a) = unreadP {"type": "ReturnStatement", argument: unreadMaybe a.argument}
+unread (ReturnStatement a) = unreadP {
+    "type": "ReturnStatement",
+    argument: unreadMaybe a.argument
+  }
 
-unread (SequenceExpression a) = unreadP {"type": "SequenceExpression", expressions: map unread a.expressions}
+unread (SequenceExpression a) = unreadP {
+    "type": "SequenceExpression",
+    expressions: map unread a.expressions
+  }
 
 unread (SwitchCase a) = unreadP {
     "type": "SwitchCase",
@@ -582,9 +615,14 @@ unread (SwitchStatement a) = unreadP {
     cases: map unread a.cases
   }
 
-unread ThisExpression = unreadP {"type": "ThisExpression"}
+unread ThisExpression = unreadP {
+    "type": "ThisExpression"
+  }
 
-unread (ThrowStatement a) = unreadP {"type": "ThrowStatement", argument: unread a.argument}
+unread (ThrowStatement a) = unreadP {
+    "type": "ThrowStatement",
+    argument: unread a.argument
+  }
 
 unread (TryStatement a) = unreadP {
     "type": "TryStatement",
