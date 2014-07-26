@@ -5,7 +5,9 @@ build: lib/SpiderMonkeyAST.js
 doc: README.md
 
 BOWER_DEPS = $(shell find bower_components/purescript-*/src -name "*.purs" | sort)
-MOCHA = node_modules/.bin/mocha --inline-diffs --check-leaks -u tdd -R dot
+ISTANBUL = node_modules/.bin/istanbul
+MOCHA = node_modules/.bin/_mocha
+MOCHA_OPTS = --inline-diffs --check-leaks -u tdd -R dot
 
 lib:
 	mkdir lib
@@ -31,6 +33,6 @@ README.md: lib/SpiderMonkeyAST.externs.purs
 	docgen lib/SpiderMonkeyAST.externs.purs > README.md
 
 test: build
-	${MOCHA}
+	$(ISTANBUL) cover $(MOCHA) -- $(MOCHA_OPTS) -- test/*.js
 clean:
 	rm -rf lib
