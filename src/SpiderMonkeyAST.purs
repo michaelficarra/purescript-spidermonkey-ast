@@ -283,253 +283,200 @@ unreadUpdateOperator UpdateOpIncrement = "++"
 unreadUpdateOperator UpdateOpDecrement = "--"
 
 
-foreign import unreadArrayExpression
-  "function unreadArrayExpression(node) {\n\
-  \  return {type: 'ArrayExpression', elements: node.elements};\n\
-  \}" :: {elements :: [SMAST]} -> SMAST
-
-foreign import unreadAssignmentExpression
-  "function unreadAssignmentExpression(node) {\n\
-  \  return {type: 'AssignmentExpression', operator: node.operator, left: node.left, right: node.right};\n\
-  \}" :: {operator :: String, left :: SMAST, right :: SMAST} -> SMAST
-
-foreign import unreadBinaryExpression
-  "function unreadBinaryExpression(node) {\n\
-  \  return {type: 'BinaryExpression', operator: node.operator, left: node.left, right: node.right};\n\
-  \}" :: {operator :: String, left :: SMAST, right :: SMAST} -> SMAST
-
-foreign import unreadBlockStatement
-  "function unreadBlockStatement(node) {\n\
-  \  return {type: 'BlockStatement', body: node.body};\n\
-  \}" :: {body :: [SMAST]} -> SMAST
-
-foreign import unreadBreakStatement
-  "function unreadBreakStatement(node) {\n\
-  \  return {type: 'BreakStatement', label: node.label};\n\
-  \}" :: {label :: SMAST} -> SMAST
-
-foreign import unreadCallExpression
-  "function unreadCallExpression(node) {\n\
-  \  return {type: 'CallExpression', callee: node.callee, arguments: node.arguments};\n\
-  \}" :: {callee :: SMAST, arguments :: [SMAST]} -> SMAST
-
-foreign import unreadCatchClause
-  "function unreadCatchClause(node) {\n\
-  \  return {type: 'CatchClause', param: node.param, body: node.body};\n\
-  \}" :: {param :: SMAST, body :: SMAST} -> SMAST
-
-foreign import unreadConditionalExpression
-  "function unreadConditionalExpression(node) {\n\
-  \  return {type: 'ConditionalExpression', test: node.test, alternate: node.alternate, consequent: node.consequent};\n\
-  \}" :: {test :: SMAST, alternate :: SMAST, consequent :: SMAST} -> SMAST
-
-foreign import unreadContinueStatement
-  "function unreadContinueStatement(node) {\n\
-  \  return {type: 'ContinueStatement', label: node.label};\n\
-  \}" :: {label :: SMAST} -> SMAST
-
-foreign import unreadDebuggerStatement
-  "var unreadDebuggerStatement = {type: 'DebuggerStatement'};" :: SMAST
-
-foreign import unreadDoWhileStatement
-  "function unreadDoWhileStatement(node) {\n\
-  \  return {type: 'DoWhileStatement', body: node.body, test: node.test};\n\
-  \}" :: {body :: SMAST, test :: SMAST} -> SMAST
-
-foreign import unreadEmptyStatement
-  "var unreadEmptyStatement = {type: 'EmptyStatement'};" :: SMAST
-
-foreign import unreadExpressionStatement
-  "function unreadExpressionStatement(node) {\n\
-  \  return {type: 'ExpressionStatement', expression: node.expression};\n\
-  \}" :: {expression :: SMAST} -> SMAST
-
-foreign import unreadForInStatement
-  "function unreadForInStatement(node) {\n\
-  \  return {type: 'ForInStatement', left: node.left, right: node.right, body: node.body};\n\
-  \}" :: {left :: SMAST, right :: SMAST, body :: SMAST} -> SMAST
-
-foreign import unreadForStatement
-  "function unreadForStatement(node) {\n\
-  \  return {type: 'ForStatement', init: node.init, test: node.test, update: node.update, body: node.body};\n\
-  \}" :: {init :: SMAST, test :: SMAST, update :: SMAST, body :: SMAST} -> SMAST
-
-foreign import unreadFunctionDeclaration
-  "function unreadFunctionDeclaration(node) {\n\
-  \  return {type: 'FunctionDeclaration', id: node.id, params: node.params, body: node.body};\n\
-  \}" :: {id :: SMAST, params :: [SMAST], body :: SMAST} -> SMAST
-
-foreign import unreadFunctionExpression
-  "function unreadFunctionExpression(node) {\n\
-  \  return {type: 'FunctionExpression', id: node.id, params: node.params, body: node.body};\n\
-  \}" :: {id :: SMAST, params :: [SMAST], body :: SMAST} -> SMAST
-
-foreign import unreadIdentifier
-  "function unreadIdentifier(node) {\n\
-  \  return {type: 'Identifier', name: node.name};\n\
-  \}" :: {name :: String} -> SMAST
-
-foreign import unreadIfStatement
-  "function unreadIfStatement(node) {\n\
-  \  return {type: 'IfStatement', test: node.test, consequent: node.consequent, alternate: node.alternate};\n\
-  \}" :: {test :: SMAST, consequent :: SMAST, alternate :: SMAST} -> SMAST
-
-foreign import unreadLabeledStatement
-  "function unreadLabeledStatement(node) {\n\
-  \  return {type: 'LabeledStatement', label: node.label, body: node.body};\n\
-  \}" :: {label :: SMAST, body :: SMAST} -> SMAST
-
-foreign import unreadLiteralBoolean
-  "function unreadLiteralBoolean(node) {\n\
-  \  return {type: 'Literal', value: node.value};\n\
-  \}" :: {value :: Boolean} -> SMAST
-foreign import unreadLiteralNull
-  "var unreadLiteralNull = {type: 'Literal', value: null};" :: SMAST
-foreign import unreadLiteralNumber
-  "function unreadLiteralNumber(node) {\n\
-  \  return {type: 'Literal', value: node.value};\n\
-  \}" :: {value :: Number} -> SMAST
-foreign import unreadLiteralRegExp
-  "function unreadLiteralRegExp(node) {\n\
-  \  return {type: 'Literal', value: node.value};\n\
-  \}" :: {value :: Regex} -> SMAST
-foreign import unreadLiteralString
-  "function unreadLiteralString(node) {\n\
-  \  return {type: 'Literal', value: node.value};\n\
-  \}" :: {value :: String} -> SMAST
-
-foreign import unreadLogicalExpression
-  "function unreadLogicalExpression(node) {\n\
-  \  return {type: 'LogicalExpression', operator: node.operator, left: node.left, right: node.right};\n\
-  \}" :: {operator :: String, left :: SMAST, right :: SMAST} -> SMAST
-
-foreign import unreadMemberExpression
-  "function unreadMemberExpression(node) {\n\
-  \  return {type: 'MemberExpression', object: node.object, property: node.property, computed: node.computed};\n\
-  \}" :: {object :: SMAST, property :: SMAST, computed :: Boolean} -> SMAST
-
-foreign import unreadNewExpression
-  "function unreadNewExpression(node) {\n\
-  \  return {type: 'NewExpression', callee: node.callee, arguments: node.arguments};\n\
-  \}" :: {callee :: SMAST, arguments :: [SMAST]} -> SMAST
-
-foreign import unreadObjectExpression
-  "function unreadObjectExpression(node) {\n\
-  \  return {type: 'ObjectExpression', properties: node.properties};\n\
-  \}" :: {properties :: [SMAST]} -> SMAST
-
-foreign import unreadProgram
-  "function unreadProgram(node) {\n\
-  \  return {type: 'Program', body: node.body};\n\
-  \}" :: {body :: [SMAST]} -> SMAST
-
-foreign import unreadReturnStatement
-  "function unreadReturnStatement(node) {\n\
-  \  return {type: 'ReturnStatement', argument: node.argument};\n\
-  \}" :: {argument :: SMAST} -> SMAST
-
-foreign import unreadSequenceExpression
-  "function unreadSequenceExpression(node) {\n\
-  \  return {type: 'SequenceExpression', expressions: node.expressions};\n\
-  \}" :: {expressions :: [SMAST]} -> SMAST
-
-foreign import unreadSwitchCase
-  "function unreadSwitchCase(node) {\n\
-  \  return {type: 'SwitchCase', test: node.test, consequent: node.consequent};\n\
-  \}" :: {test :: SMAST, consequent :: [SMAST]} -> SMAST
-
-foreign import unreadSwitchStatement
-  "function unreadSwitchStatement(node) {\n\
-  \  return {type: 'SwitchStatement', discriminant: node.discriminant, cases: node.cases};\n\
-  \}" :: {discriminant :: SMAST, cases :: [SMAST]} -> SMAST
-
-foreign import unreadThisExpression
-  "var unreadThisExpression = {type: 'ThisExpression'};" :: SMAST
-
-foreign import unreadThrowStatement
-  "function unreadThrowStatement(node) {\n\
-  \  return {type: 'ThrowStatement', argument: node.argument};\n\
-  \}" :: {argument :: SMAST} -> SMAST
-
-foreign import unreadTryStatement
-  "function unreadTryStatement(node) {\n\
-  \  return {type: 'TryStatement', block: node.block, handler: node.handler, finalizer: node.finalizer};\n\
-  \}" :: {block :: SMAST, handler :: SMAST, finalizer :: SMAST} -> SMAST
-
-foreign import unreadUnaryExpression
-  "function unreadUnaryExpression(node) {\n\
-  \  return {type: 'UnaryExpression', operator: node.operator, argument: node.argument};\n\
-  \}" :: {operator :: String, argument :: SMAST} -> SMAST
-
-foreign import unreadUpdateExpression
-  "function unreadUpdateExpression(node) {\n\
-  \  return {type: 'UpdateExpression', operator: node.operator, argument: node.argument, prefix: node.prefix};\n\
-  \}" :: {operator :: String, argument :: SMAST, prefix :: Boolean} -> SMAST
-
-foreign import unreadVariableDeclaration
-  "function unreadVariableDeclaration(node) {\n\
-  \  return {type: 'VariableDeclaration', kind: node.kind, declarations: node.declarations};\n\
-  \}" :: {kind :: String, declarations :: [SMAST]} -> SMAST
-
-foreign import unreadVariableDeclarator
-  "function unreadVariableDeclarator(node) {\n\
-  \  return {type: 'VariableDeclarator', id: node.id, init: node.init};\n\
-  \}" :: {id :: SMAST, init :: SMAST} -> SMAST
-
-foreign import unreadWhileStatement
-  "function unreadWhileStatement(node) {\n\
-  \  return {type: 'WhileStatement', test: node.test, body: node.body};\n\
-  \}" :: {test :: SMAST, body :: SMAST} -> SMAST
-
-foreign import unreadWithStatement
-  "function unreadWithStatement(node) {\n\
-  \  return {type: 'WithStatement', object: node.object, body: node.body};\n\
-  \}" :: {object :: SMAST, body :: SMAST} -> SMAST
+foreign import unreadP "function unreadP(x) { return x; }" :: forall a. { "type" :: String | a } -> SMAST
 
 unread :: Node -> SMAST
-unread (ArrayExpression a) = unreadArrayExpression {elements: map unreadMaybe a.elements}
-unread (AssignmentExpression a) = unreadAssignmentExpression {operator: unreadAssignmentOperator a.operator, left: unread a.left, right: unread a.right}
-unread (BinaryExpression a) = unreadBinaryExpression {operator: unreadBinaryOperator a.operator, left: unread a.left, right: unread a.right}
-unread (BlockStatement a) = unreadBlockStatement {body: map unread a.body}
-unread (BreakStatement a) = unreadBreakStatement {label: unreadMaybe a.label}
-unread (CallExpression a) = unreadCallExpression {callee: unread a.callee, arguments: map unread a.arguments}
-unread (CatchClause a) = unreadCatchClause {param: unread a.param, body: unread a.body}
-unread (ConditionalExpression a) = unreadConditionalExpression {test: unread a.test, alternate: unread a.alternate, consequent: unread a.consequent}
-unread (ContinueStatement a) = unreadContinueStatement {label: unreadMaybe a.label}
-unread DebuggerStatement = unreadDebuggerStatement
-unread (DoWhileStatement a) = unreadDoWhileStatement {body: unread a.body, test: unread a.test}
-unread EmptyStatement = unreadEmptyStatement
-unread (ExpressionStatement a) = unreadExpressionStatement {expression: unread a.expression}
-unread (ForInStatement a) = unreadForInStatement {left: unread a.left, right: unread a.right, body: unread a.body}
-unread (ForStatement a) = unreadForStatement {init: unreadMaybe a.init, test: unreadMaybe a.test, update: unreadMaybe a.update, body: unread a.body}
-unread (FunctionDeclaration a) = unreadFunctionDeclaration {id: unread a.id, params: map unread a.params, body: unread a.body}
-unread (FunctionExpression a) = unreadFunctionExpression {id: unreadMaybe a.id, params: map unread a.params, body: unread a.body}
-unread (Identifier a) = unreadIdentifier a
-unread (IfStatement a) = unreadIfStatement {test: unread a.test, consequent: unread a.consequent, alternate: unreadMaybe a.alternate}
-unread (LabeledStatement a) = unreadLabeledStatement {label: unread a.label, body: unread a.body}
-unread (LiteralBoolean a) = unreadLiteralBoolean a
-unread LiteralNull = unreadLiteralNull
-unread (LiteralNumber a) = unreadLiteralNumber a
-unread (LiteralRegExp a) = unreadLiteralRegExp a
-unread (LiteralString a) = unreadLiteralString a
-unread (LogicalExpression a) = unreadLogicalExpression {operator: unreadLogicalOperator a.operator, left: unread a.left, right: unread a.right}
-unread (MemberExpression a) = unreadMemberExpression {object: unread a.object, property: unread a.property, computed: a.computed}
-unread (NewExpression a) = unreadNewExpression {callee: unread a.callee, arguments: map unread a.arguments}
-unread (ObjectExpression a) = unreadObjectExpression {properties: map unreadObjectProperty a.properties}
-unread (Program a) = unreadProgram {body: map unread a.body}
-unread (ReturnStatement a) = unreadReturnStatement {argument: unreadMaybe a.argument}
-unread (SequenceExpression a) = unreadSequenceExpression {expressions: map unread a.expressions}
-unread (SwitchCase a) = unreadSwitchCase {test: unreadMaybe a.test, consequent: map unread a.consequent}
-unread (SwitchStatement a) = unreadSwitchStatement {discriminant: unread a.discriminant, cases: map unread a.cases}
-unread ThisExpression = unreadThisExpression
-unread (ThrowStatement a) = unreadThrowStatement {argument: unread a.argument}
-unread (TryStatement a) = unreadTryStatement {block: unread a.block, handler: unreadMaybe a.handler, finalizer: unreadMaybe a.finalizer}
-unread (UnaryExpression a) = unreadUnaryExpression {operator: unreadUnaryOperator a.operator, argument: unread a.argument}
-unread (UpdateExpression a) = unreadUpdateExpression {operator: unreadUpdateOperator a.operator, argument: unread a.argument, prefix: a.prefix}
-unread (VariableDeclaration a) = unreadVariableDeclaration {kind: unreadVarDeclKind a.kind, declarations: map unread a.declarations}
-unread (VariableDeclarator a) = unreadVariableDeclarator {id: unread a.id, init: unreadMaybe a.init}
-unread (WhileStatement a) = unreadWhileStatement {test: unread a.test, body: unread a.body}
-unread (WithStatement a) = unreadWithStatement {object: unread a.object, body: unread a.body}
+
+unread (ArrayExpression a) = unreadP {"type": "ArrayExpression", elements: map unreadMaybe a.elements}
+
+unread (AssignmentExpression a) = unreadP {
+    "type": "AssignmentExpression",
+    operator: unreadAssignmentOperator a.operator,
+    left: unread a.left,
+    right: unread a.right
+  }
+
+unread (BinaryExpression a) = unreadP {
+    "type": "BinaryExpression",
+    operator: unreadBinaryOperator a.operator,
+    left: unread a.left,
+    right: unread a.right
+  }
+
+unread (BlockStatement a) = unreadP {"type": "BlockStatement", body: map unread a.body}
+
+unread (BreakStatement a) = unreadP {"type": "BreakStatement", label: unreadMaybe a.label}
+
+unread (CallExpression a) = unreadP {
+    "type": "CallExpression",
+    callee: unread a.callee,
+    arguments: map unread a.arguments
+  }
+
+unread (CatchClause a) = unreadP {
+    "type": "CatchClause",
+    param: unread a.param,
+    body: unread a.body
+  }
+
+unread (ConditionalExpression a) = unreadP {
+    "type": "ConditionalExpression",
+    test: unread a.test,
+    alternate: unread a.alternate,
+    consequent: unread a.consequent
+  }
+
+unread (ContinueStatement a) = unreadP {"type": "ContinueStatement", label: unreadMaybe a.label}
+
+unread DebuggerStatement = unreadP {"type": "DebuggerStatement"}
+
+unread (DoWhileStatement a) = unreadP {
+    "type": "DoWhileStatement",
+    body: unread a.body,
+    test: unread a.test
+  }
+
+unread EmptyStatement = unreadP {"type": "EmptyStatement"}
+
+unread (ExpressionStatement a) = unreadP {"type": "ExpressionStatement", expression: unread a.expression}
+
+unread (ForInStatement a) = unreadP {
+    "type": "ForInStatement",
+    left: unread a.left,
+    right: unread a.right,
+    body: unread a.body
+  }
+
+unread (ForStatement a) = unreadP {
+    "type": "ForStatement",
+    init: unreadMaybe a.init,
+    test: unreadMaybe a.test,
+    update: unreadMaybe a.update,
+    body: unread a.body
+  }
+
+unread (FunctionDeclaration a) = unreadP {
+    "type": "FunctionDeclaration",
+    id: unread a.id,
+    params: map unread a.params,
+    body: unread a.body
+  }
+
+unread (FunctionExpression a) = unreadP {
+    "type": "FunctionExpression",
+    id: unreadMaybe a.id,
+    params: map unread a.params,
+    body: unread a.body
+  }
+
+unread (Identifier a) = unreadP {"type": "Identifier", name: a.name}
+
+unread (IfStatement a) = unreadP {
+    "type": "IfStatement",
+    test: unread a.test,
+    consequent: unread a.consequent,
+    alternate: unreadMaybe a.alternate
+  }
+
+unread (LabeledStatement a) = unreadP {
+    "type": "LabeledStatement",
+    label: unread a.label,
+    body: unread a.body
+  }
+
+unread (LiteralBoolean a) = unreadP {"type": "Literal", value: a.value}
+unread LiteralNull = unreadP {"type": "Literal", value: unreadNull}
+unread (LiteralNumber a) = unreadP {"type": "Literal", value: a.value}
+unread (LiteralRegExp a) = unreadP {"type": "Literal", value: a.value}
+unread (LiteralString a) = unreadP {"type": "Literal", value: a.value}
+
+unread (LogicalExpression a) = unreadP {
+    "type": "LogicalExpression",
+    operator: unreadLogicalOperator a.operator,
+    left: unread a.left,
+    right: unread a.right
+  }
+
+unread (MemberExpression a) = unreadP {
+    "type": "MemberExpression",
+    object: unread a.object,
+    property: unread a.property,
+    computed: a.computed
+  }
+
+unread (NewExpression a) = unreadP {
+    "type": "NewExpression",
+    callee: unread a.callee,
+    arguments: map unread a.arguments
+  }
+
+unread (ObjectExpression a) = unreadP {"type": "ObjectExpression", properties: map unreadObjectProperty a.properties}
+
+unread (Program a) = unreadP {"type": "Program", body: map unread a.body}
+
+unread (ReturnStatement a) = unreadP {"type": "ReturnStatement", argument: unreadMaybe a.argument}
+
+unread (SequenceExpression a) = unreadP {"type": "SequenceExpression", expressions: map unread a.expressions}
+
+unread (SwitchCase a) = unreadP {
+    "type": "SwitchCase",
+    test: unreadMaybe a.test,
+    consequent: map unread a.consequent
+  }
+
+unread (SwitchStatement a) = unreadP {
+    "type": "SwitchStatement",
+    discriminant: unread a.discriminant,
+    cases: map unread a.cases
+  }
+
+unread ThisExpression = unreadP {"type": "ThisExpression"}
+
+unread (ThrowStatement a) = unreadP {"type": "ThrowStatement", argument: unread a.argument}
+
+unread (TryStatement a) = unreadP {
+    "type": "TryStatement",
+    block: unread a.block,
+    handler: unreadMaybe a.handler,
+    finalizer: unreadMaybe a.finalizer
+  }
+
+unread (UnaryExpression a) = unreadP {
+    "type": "UnaryExpression",
+    operator: unreadUnaryOperator a.operator,
+    argument: unread a.argument
+  }
+
+unread (UpdateExpression a) = unreadP {
+    "type": "UpdateExpression",
+    operator: unreadUpdateOperator a.operator,
+    argument: unread a.argument,
+    prefix: a.prefix
+  }
+
+unread (VariableDeclaration a) = unreadP {
+    "type": "VariableDeclaration",
+    kind: unreadVarDeclKind a.kind,
+    declarations: map unread a.declarations
+  }
+
+unread (VariableDeclarator a) = unreadP {
+    "type": "VariableDeclarator",
+    id: unread a.id,
+    init: unreadMaybe a.init
+  }
+
+unread (WhileStatement a) = unreadP {
+    "type": "WhileStatement",
+    test: unread a.test,
+    body: unread a.body
+  }
+
+unread (WithStatement a) = unreadP {
+    "type": "WithStatement",
+    object: unread a.object,
+    body: unread a.body
+  }
 
 
 foreign import toJSON "function toJSON(a){ return JSON.stringify(a, null, 2); };" :: forall a. a -> String
