@@ -16,4 +16,13 @@ suite("high-level tests", function() {
       done();
     });
   });
+
+  test("everything.js", function(done) {
+    fs.readFile(require.resolve("everything.js"), function(err, programText) {
+      var program = esprima.parse("" + programText);
+      var roundTrippedProgram = SpiderMonkeyAST.unread(SpiderMonkeyAST.read(program));
+      assert.equal(escodegen.generate(program), escodegen.generate(roundTrippedProgram));
+      done();
+    });
+  });
 });
