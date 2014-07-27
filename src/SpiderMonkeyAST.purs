@@ -168,6 +168,9 @@ foreign import fromNullP
   \};};}" :: forall a. Maybe a -> (a -> Maybe a) -> a -> Maybe a
 fromNull = fromNullP Nothing Just
 
+-- NOTE: TryStatement interface changed from {handlers: [CatchClause]} to {handler: CatchClause}; we support both
+foreign import getHandlers "function getHandlers(node) { return node.handlers ? node.handlers[0] : node.handler; }" :: SMAST -> SMAST
+
 foreign import getClass "function getClass(x) { return {}.toString.call(x); }" :: forall a. a -> String
 foreign import get "function get(p) { return function(o) { return o[p]; }; }" :: forall a. String -> SMAST -> a
 foreign import toBool "function toBool(x) { return !!x; }" :: forall a. a -> Boolean
@@ -331,7 +334,7 @@ read node = case getType node of
 
   "TryStatement" -> TryStatement {
       block: read $ get "block" node,
-      handler: read <$> fromNull (get "handler" node),
+      handler: read <$> fromNull (getHandlers node),
       finalizer: read <$> fromNull (get "finalizer" node)
     }
 
