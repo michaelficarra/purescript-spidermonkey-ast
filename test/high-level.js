@@ -12,6 +12,7 @@ suite("high-level tests", function() {
     fs.readFile(require.resolve(".."), function(err, programText) {
       var program = esprima.parse("" + programText);
       var roundTrippedProgram = SpiderMonkeyAST.unread(SpiderMonkeyAST.read(program));
+      assert.equal(JSON.stringify(roundTrippedProgram, null, 2), SpiderMonkeyAST.showNode().show(SpiderMonkeyAST.read(program)));
       assert.equal(escodegen.generate(program), escodegen.generate(roundTrippedProgram));
       done();
     });
@@ -21,6 +22,7 @@ suite("high-level tests", function() {
     fs.readFile(require.resolve("everything.js"), function(err, programText) {
       var program = esprima.parse("" + programText);
       var roundTrippedProgram = SpiderMonkeyAST.unread(SpiderMonkeyAST.read(program));
+      assert.equal(JSON.stringify(roundTrippedProgram, null, 2), SpiderMonkeyAST.showNode().show(SpiderMonkeyAST.read(program)));
       assert.equal(escodegen.generate(program), escodegen.generate(roundTrippedProgram));
       done();
     });
