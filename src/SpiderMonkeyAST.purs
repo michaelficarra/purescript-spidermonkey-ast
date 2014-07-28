@@ -18,7 +18,7 @@ module SpiderMonkeyAST (
   ) where
 
 
-import Data.Array (map, head)
+import Data.Array (head)
 import Data.Maybe (Maybe(..), maybe)
 import Data.String.Regex (Regex(..))
 
@@ -444,7 +444,7 @@ unread :: Node -> SMAST
 
 unread (ArrayExpression a) = unreadP {
     "type": "ArrayExpression",
-    elements: map unreadMaybe a.elements
+    elements: unreadMaybe <$> a.elements
   }
 
 unread (AssignmentExpression a) = unreadP {
@@ -463,7 +463,7 @@ unread (BinaryExpression a) = unreadP {
 
 unread (BlockStatement a) = unreadP {
     "type": "BlockStatement",
-    body: map unread a.body
+    body: unread <$> a.body
   }
 
 unread (BreakStatement a) = unreadP {
@@ -474,7 +474,7 @@ unread (BreakStatement a) = unreadP {
 unread (CallExpression a) = unreadP {
     "type": "CallExpression",
     callee: unread a.callee,
-    arguments: map unread a.arguments
+    arguments: unread <$> a.arguments
   }
 
 unread (CatchClause a) = unreadP {
@@ -532,14 +532,14 @@ unread (ForStatement a) = unreadP {
 unread (FunctionDeclaration a) = unreadP {
     "type": "FunctionDeclaration",
     id: unread a.id,
-    params: map unread a.params,
+    params: unread <$> a.params,
     body: unread a.body
   }
 
 unread (FunctionExpression a) = unreadP {
     "type": "FunctionExpression",
     id: unreadMaybe a.id,
-    params: map unread a.params,
+    params: unread <$> a.params,
     body: unread a.body
   }
 
@@ -583,17 +583,17 @@ unread (MemberExpression a) = unreadP {
 unread (NewExpression a) = unreadP {
     "type": "NewExpression",
     callee: unread a.callee,
-    arguments: map unread a.arguments
+    arguments: unread <$> a.arguments
   }
 
 unread (ObjectExpression a) = unreadP {
     "type": "ObjectExpression",
-    properties: map unreadObjectProperty a.properties
+    properties: unreadObjectProperty <$> a.properties
   }
 
 unread (Program a) = unreadP {
     "type": "Program",
-    body: map unread a.body
+    body: unread <$> a.body
   }
 
 unread (ReturnStatement a) = unreadP {
@@ -603,19 +603,19 @@ unread (ReturnStatement a) = unreadP {
 
 unread (SequenceExpression a) = unreadP {
     "type": "SequenceExpression",
-    expressions: map unread a.expressions
+    expressions: unread <$> a.expressions
   }
 
 unread (SwitchCase a) = unreadP {
     "type": "SwitchCase",
     test: unreadMaybe a.test,
-    consequent: map unread a.consequent
+    consequent: unread <$> a.consequent
   }
 
 unread (SwitchStatement a) = unreadP {
     "type": "SwitchStatement",
     discriminant: unread a.discriminant,
-    cases: map unread a.cases
+    cases: unread <$> a.cases
   }
 
 unread ThisExpression = unreadP {
@@ -650,7 +650,7 @@ unread (UpdateExpression a) = unreadP {
 unread (VariableDeclaration a) = unreadP {
     "type": "VariableDeclaration",
     kind: unreadVarDeclKind a.kind,
-    declarations: map unread a.declarations
+    declarations: unread <$> a.declarations
   }
 
 unread (VariableDeclarator a) = unreadP {
