@@ -276,7 +276,7 @@ read node = case getType node of
       body: read $ get "body" node
     }
 
-  "Literal" -> case getClass (get "value" node) of
+  "Literal" -> case getClass $ get "value" node of
     "[object Boolean]" -> LiteralBoolean { value: toBool $ get "value" node }
     "[object Null]" -> LiteralNull
     "[object Number]" -> LiteralNumber { value: get "value" node }
@@ -334,7 +334,7 @@ read node = case getType node of
 
   "TryStatement" -> TryStatement {
       block: read $ get "block" node,
-      handler: read <$> (head $ getHandlers node),
+      handler: read <$> head (getHandlers node),
       finalizer: read <$> fromNull (get "finalizer" node)
     }
 
@@ -369,7 +369,7 @@ read node = case getType node of
       body: read $ get "body" node
     }
 
-  _ -> throwTypeError $ "Unrecognised node type: " ++ getType node
+  _ -> throwTypeError $ "Unrecognised node type: " <> getType node
 
 
 foreign import unreadNull "var unreadNull = null;" :: SMAST
