@@ -29,4 +29,14 @@ suite("unit", function() {
     assert.equal(escodegen.generate(withEmptyHandlers), expected);
     assert.equal(escodegen.generate(withNeither), expected);
   });
+
+  test("VariableDeclaration kinds: var/let/const", function() {
+    var declarator = {type: "VariableDeclarator", id: {type: "Identifier", name: "a"}};
+    var withVar = {type: "VariableDeclaration", kind: "var", declarations: [declarator]};
+    var withLet = {type: "VariableDeclaration", kind: "let", declarations: [declarator]};
+    var withConst = {type: "VariableDeclaration", kind: "const", declarations: [declarator]};
+    assert.equal(escodegen.generate(withVar), escodegen.generate(SpiderMonkeyAST.unread(SpiderMonkeyAST.read(withVar))));
+    assert.equal(escodegen.generate(withLet), escodegen.generate(SpiderMonkeyAST.unread(SpiderMonkeyAST.read(withLet))));
+    assert.equal(escodegen.generate(withConst), escodegen.generate(SpiderMonkeyAST.unread(SpiderMonkeyAST.read(withConst))));
+  });
 })
