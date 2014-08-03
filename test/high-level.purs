@@ -1,6 +1,6 @@
 module Tests (main) where
 
-import Node.FS.Async (Callback(), readFile)
+import Node.FS.Sync (readFile)
 import Data.Either (Either(..))
 import qualified Node.Buffer as Buffer
 import qualified Node.Encoding as Encoding
@@ -18,9 +18,9 @@ testRoundTripAndShow (Right programText) = do
 main = suite "high-level tests" $ do
 
   test "self round-tripping" \done -> do
-    readFile (resolve "..") $ testRoundTripAndShow
+    readFile (resolve "..") >>= testRoundTripAndShow
     return done
 
   test "everything.js" \done -> do
-    readFile (resolve "everything.js") $ testRoundTripAndShow
+    readFile (resolve "everything.js") >>= testRoundTripAndShow
     return done
