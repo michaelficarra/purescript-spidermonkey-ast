@@ -35,13 +35,11 @@ README.md: lib/SpiderMonkeyAST.externs.purs
 
 build-tests: test/high-level.js test/unit.js
 test/high-level.js: test-helper.purs src/SpiderMonkeyAST.purs test/high-level.purs
-	psc --verbose-errors \
-	  -m HighLevelTests \
+	psc --verbose-errors -m Tests \
 	  $(BOWER_DEPS) test-helper.purs test/high-level.purs \
 	  > test/high-level.js
 test/unit.js: test-helper.purs src/SpiderMonkeyAST.purs test/unit.purs
-	psc --verbose-errors \
-	  -m HighLevelTests \
+	psc --verbose-errors -m Tests \
 	  $(BOWER_DEPS) test-helper.purs test/unit.purs \
 	  > test/unit.js
 

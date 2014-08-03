@@ -1,4 +1,4 @@
-module HighLevelTests (main) where
+module Tests (main) where
 
 import Node.FS.Async (Callback(), readFile)
 import Data.Either (Either(..))
