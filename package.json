@@ -1,6 +1,6 @@
 {
   "name": "purescript-spidermonkey-ast",
-  "version": "0.0.0",
+  "version": "1.0.0",
   "description": "PureScript bindings for Mozilla's SpiderMonkey AST format",
   "main": "lib/SpiderMonkeyAST.js",
   "scripts": {
