@@ -21,5 +21,6 @@ foreign import escodegen "var escodegen = require('escodegen');" :: { generate :
 foreign import jsonStringify "function jsonStringify(x) { return JSON.stringify(x, null, 2); }" :: forall a. a -> String
 
 foreign import eq "function eq(a) { return function(b) { return function() { return require('assert').equal(a, b); }; }; }" :: forall a e. a ->  a -> (Eff (assertion :: Assertion | e) Unit)
-foreign import suite "function suite(desc) { return function(f) { return describe(desc, f); } }" :: forall e. String -> Eff e Unit -> Eff (suite :: Suite | e) Unit
-foreign import test "function test(desc) { return function(f) { return function() { return it(desc, function(done) { f(done)()(); }); }; }; }" :: forall e done. String -> (done -> Eff e done) -> Eff (test :: Test | e) Unit
+foreign import suite "function suite(desc) { return function(f) { return describe(desc, f); } }" :: forall e a. String -> Eff e a -> Eff (suite :: Suite | e) Unit
+foreign import testAsync "function test(desc) { return function(f) { return function() { return it(desc, function(done) { f(done)()(); }); }; }; }" :: forall e done. String -> (done -> Eff e done) -> Eff (test :: Test | e) Unit
+foreign import test "function test(desc) { return function(f) { return function() { return it(desc, f); }; }; }" :: forall e a. String -> Eff e a -> Eff (test :: Test | e) Unit

@@ -4,9 +4,9 @@ import TestHelper (read, unread, SMAST(), suite, test, eq, resolve, esprima, esc
 
 foreign import toSMAST "function toSMAST(x) { return x; }" :: forall r. {"type" :: String | r} -> SMAST
 
-main = suite "unit" $ do
+main = suite "unit" do
 
-  test "TryStatement handler/handlers" \done -> do
+  test "TryStatement handler/handlers" do
     let block = {"type": "BlockStatement", body: []}
     let catchClause = {"type": "CatchClause", param: {"type": "Identifier", name: "e"}, body: block}
 
@@ -27,9 +27,8 @@ main = suite "unit" $ do
     let expectedFinally = escodegen.generate $ toSMAST {"type": "TryStatement", block: block, finalizer: block}
     eq (escodegen.generate withEmptyHandlers) expectedFinally
     eq (escodegen.generate withNeither) expectedFinally
-    return done
 
-  test "VariableDeclaration kinds: var/let/const" \done -> do
+  test "VariableDeclaration kinds: var/let/const" do
     let declarator = {"type": "VariableDeclarator", id: {"type": "Identifier", name: "a"}}
     let withVar = toSMAST {"type": "VariableDeclaration", kind: "var", declarations: [declarator]}
     let withLet = toSMAST {"type": "VariableDeclaration", kind: "let", declarations: [declarator]}
@@ -37,4 +36,3 @@ main = suite "unit" $ do
     eq (escodegen.generate withVar) (escodegen.generate $ unread $ read withVar)
     eq (escodegen.generate withLet) (escodegen.generate $ unread $ read withLet)
     eq (escodegen.generate withConst) (escodegen.generate $ unread $ read withConst)
-    return done

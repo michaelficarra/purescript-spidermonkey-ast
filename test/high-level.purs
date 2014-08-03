@@ -15,12 +15,10 @@ testRoundTripAndShow (Right programText) = do
   eq (escodegen.generate program) (escodegen.generate roundTripped)
   return unit
 
-main = suite "high-level tests" $ do
+main = suite "high-level tests" do
 
-  test "self round-tripping" \done -> do
+  test "self round-tripping" do
     readFile (resolve "..") >>= testRoundTripAndShow
-    return done
 
-  test "everything.js" \done -> do
+  test "everything.js" do
     readFile (resolve "everything.js") >>= testRoundTripAndShow
-    return done
