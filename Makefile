@@ -37,10 +37,15 @@ build-tests: test/high-level.js test/unit.js
 test/high-level.js: test-helper.purs src/SpiderMonkeyAST.purs test/high-level.purs
 	psc --verbose-errors \
 	  -m HighLevelTests \
-	  $(BOWER_DEPS) test-helper.purs src/SpiderMonkeyAST.purs test/high-level.purs \
+	  $(BOWER_DEPS) test-helper.purs test/high-level.purs \
 	  > test/high-level.js
+test/unit.js: test-helper.purs src/SpiderMonkeyAST.purs test/unit.purs
+	psc --verbose-errors \
+	  -m HighLevelTests \
+	  $(BOWER_DEPS) test-helper.purs test/unit.purs \
+	  > test/unit.js
 
 test: build build-tests
 	$(ISTANBUL) cover $(MOCHA) -- $(MOCHA_OPTS) -- test/*.js
 clean:
-	rm -rf lib test/high-level.js
+	rm -rf lib test/*.js

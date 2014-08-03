@@ -2,4 +2,4 @@ lib
 node_modules
 bower_components
 coverage
-test/high-level.js
+test/*.js
