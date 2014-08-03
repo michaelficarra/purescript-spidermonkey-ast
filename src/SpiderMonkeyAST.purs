@@ -2,7 +2,7 @@ module SpiderMonkeyAST (
   read,
   unread,
 
-  SMAST(..),
+  SMAST(),
   Node(..),
 
   ObjectPropertyKind(..),
@@ -20,7 +20,7 @@ module SpiderMonkeyAST (
 
 import Data.Array (head)
 import Data.Maybe (Maybe(..), maybe)
-import Data.String.Regex (Regex(..))
+import Data.String.Regex (Regex())
 
 
 data VarDeclKind = Var | Let | Const
