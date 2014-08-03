@@ -1,10 +1,5 @@
 module Tests (main) where
 
-import Node.FS.Async (Callback(), readFile)
-import Data.Either (Either(..))
-import qualified Node.Buffer as Buffer
-import qualified Node.Encoding as Encoding
-
 import TestHelper (read, unread, SMAST(), suite, test, eq, resolve, esprima, escodegen, jsonStringify)
 
 foreign import toSMAST "function toSMAST(x) { return x; }" :: forall r. {"type" :: String | r} -> SMAST
