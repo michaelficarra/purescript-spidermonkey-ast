@@ -12,7 +12,7 @@ TESTSOUT = $(TESTS:test/%.purs=built-tests/%.js)
 
 ISTANBUL = node_modules/.bin/istanbul
 MOCHA = node_modules/.bin/_mocha
-MOCHA_OPTS = --inline-diffs --check-leaks -u tdd -R dot
+MOCHA_OPTS = --inline-diffs --check-leaks -R dot
 
 lib/SpiderMonkeyAST.js: src/SpiderMonkeyAST.purs
 	@mkdir -p '$(@D)'
