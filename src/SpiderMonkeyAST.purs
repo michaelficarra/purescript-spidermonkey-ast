@@ -158,7 +158,7 @@ readUnaryOperator "delete" = UnaryOpDelete
 readUpdateOperator "++" = UpdateOpIncrement
 readUpdateOperator "--" = UpdateOpDecrement
 
-foreign import throwTypeError "function throwTypeError(msg) { throw new TypeError(msg); }" :: forall a. String ->  a
+foreign import throwTypeError "/* istanbul ignore next */ function throwTypeError(msg) { throw new TypeError(msg); }" :: forall a. String ->  a
 
 foreign import fromNullP
   "function fromNullP(Nothing) {\n\
