@@ -23,5 +23,8 @@
     "purescript-arrays": "*",
     "purescript-maybe": "*",
     "purescript-strings": "*"
+  },
+  "devDependencies": {
+    "purescript-node-fs": "*"
   }
 }

@@ -2,6 +2,7 @@ default: build doc
 all: build doc test
 
 build: lib/SpiderMonkeyAST.js
+externs:: lib/SpiderMonkeyAST.externs.purs
 doc: README.md
 
 BOWER_DEPS = $(shell find bower_components/purescript-*/src -name "*.purs" | sort)
@@ -19,7 +20,7 @@ lib/SpiderMonkeyAST.js: src/SpiderMonkeyAST.purs lib
 	  ${BOWER_DEPS} src/SpiderMonkeyAST.purs \
 	  > lib/SpiderMonkeyAST.js
 
-.PHONY: default all build doc clean test
+.PHONY: default all build externs doc clean test build-tests
 
 lib/SpiderMonkeyAST.externs.purs: src/SpiderMonkeyAST.purs lib
 	psc --verbose-errors \
@@ -32,7 +33,14 @@ lib/SpiderMonkeyAST.externs.purs: src/SpiderMonkeyAST.purs lib
 README.md: lib/SpiderMonkeyAST.externs.purs
 	docgen lib/SpiderMonkeyAST.externs.purs > README.md
 
-test: build
+build-tests: test/high-level.js test/unit.js
+test/high-level.js: test-helper.purs src/SpiderMonkeyAST.purs test/high-level.purs
+	psc --verbose-errors \
+	  -m HighLevelTests \
+	  $(BOWER_DEPS) test-helper.purs src/SpiderMonkeyAST.purs test/high-level.purs \
+	  > test/high-level.js
+
+test: build build-tests
 	$(ISTANBUL) cover $(MOCHA) -- $(MOCHA_OPTS) -- test/*.js
 clean:
-	rm -rf lib
+	rm -rf lib test/high-level.js
