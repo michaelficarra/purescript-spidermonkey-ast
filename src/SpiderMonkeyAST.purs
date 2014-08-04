@@ -162,9 +162,9 @@ foreign import throwTypeError "/* istanbul ignore next */ function throwTypeErro
 
 foreign import fromNullP
   "function fromNullP(Nothing) {\n\
-  \return function (Just) {\n\
-  \return function (x) {\n\
-  \  return x == null ? Nothing : Just(x);\n\
+  \  return function (Just) {\n\
+  \  return function (x) {\n\
+  \    return x == null ? Nothing : Just(x);\n\
   \};};}" :: forall a. Maybe a -> (a -> Maybe a) -> a -> Maybe a
 fromNull = fromNullP Nothing Just
 
@@ -672,6 +672,6 @@ unread (WithStatement a) = unreadP {
   }
 
 
-foreign import toJSON "function toJSON(a){ return JSON.stringify(a, null, 2); };" :: forall a. a -> String
+foreign import toJSON "function toJSON(a) { return JSON.stringify(a, null, 2); }" :: forall a. a -> String
 instance showNode :: Show Node where
   show a = toJSON $ unread a
