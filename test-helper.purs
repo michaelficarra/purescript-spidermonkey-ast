@@ -5,7 +5,8 @@ import Node.Path (FilePath())
 
 foreign import data SMAST :: *
 foreign import data Node :: *
-foreign import showNode "var showNode = require('..').SpiderMonkeyAST.showNode;" :: Node -> SMAST
+foreign import data TypeClassInstance :: *
+foreign import showNode "var showNode = require('..').SpiderMonkeyAST.showNode;" :: TypeClassInstance
 foreign import instance showNode :: Show Node
 foreign import unread "var unread = require('..').SpiderMonkeyAST.unread;" :: Node -> SMAST
 foreign import read "var read = require('..').SpiderMonkeyAST.read;" :: SMAST -> Node
@@ -13,7 +14,6 @@ foreign import read "var read = require('..').SpiderMonkeyAST.read;" :: SMAST ->
 foreign import data Assertion :: !
 foreign import data Suite :: !
 foreign import data Test :: !
-foreign import data Done :: !
 
 foreign import resolve "function resolve(s) { return require.resolve(s); }" :: String -> FilePath
 foreign import esprima "var esprima = require('esprima');" :: { parse :: String -> SMAST }
