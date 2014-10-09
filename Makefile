@@ -19,7 +19,7 @@ lib/SpiderMonkeyAST.js: src/SpiderMonkeyAST.purs
 	psc --verbose-errors \
 	  -m SpiderMonkeyAST \
 	  --browser-namespace exports \
-	  ${BOWER_DEPS} src/SpiderMonkeyAST.purs \
+	  ${BOWER_DEPS} '$<' \
 	  > lib/SpiderMonkeyAST.js
 
 .PHONY: default all build externs doc clean test build-tests
@@ -30,11 +30,11 @@ lib/SpiderMonkeyAST.externs.purs: src/SpiderMonkeyAST.purs
 	  -m SpiderMonkeyAST \
 	  --codegen SpiderMonkeyAST \
 	  -e lib/SpiderMonkeyAST.externs.purs \
-	  ${BOWER_DEPS} src/SpiderMonkeyAST.purs \
+	  ${BOWER_DEPS} '$<' \
 	  > /dev/null
 
 README.md: lib/SpiderMonkeyAST.externs.purs
-	docgen lib/SpiderMonkeyAST.externs.purs > README.md
+	docgen lib/SpiderMonkeyAST.externs.purs >'$@'
 
 built-tests/%.js: test/%.purs test-helper.purs
 	@mkdir -p '$(@D)'
