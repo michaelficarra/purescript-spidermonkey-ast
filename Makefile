@@ -13,7 +13,7 @@ TESTSOUT = $(TESTS:test/%.purs=built-tests/%.js)
 ISTANBUL = node_modules/.bin/istanbul
 MOCHA = node_modules/.bin/_mocha
 MOCHA_OPTS = --inline-diffs --check-leaks --reporter dot
-PSC = $(shell command -v psc || { echo "PureScript compiler (psc) not found." exit 1; })
+PSC = $(shell command -v psc || { echo "PureScript compiler (psc) not found."; exit 1; })
 PSCDOCS = $(shell command -v psc-docs || command -v docgen)
 
 lib/SpiderMonkeyAST.js: src/SpiderMonkeyAST.purs
