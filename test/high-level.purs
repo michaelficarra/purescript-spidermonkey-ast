@@ -7,8 +7,7 @@ import qualified Node.Encoding as Encoding
 
 import TestHelper (read, unread, suite, test, eq, resolve, esprima, escodegen, jsonStringify)
 
-testRoundTripAndShow (Left err) = return unit
-testRoundTripAndShow (Right programText) = do
+testRoundTripAndShow programText = do
   let program = esprima.parse (Buffer.toString Encoding.UTF8 programText)
   let roundTripped = unread (read program)
   eq (jsonStringify roundTripped) (show $ read program)
