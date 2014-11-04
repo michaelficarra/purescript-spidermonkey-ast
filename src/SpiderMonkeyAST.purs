@@ -385,6 +385,7 @@ unreadObjectPropertyKind Get = "get"
 unreadObjectPropertyKind Set = "set"
 
 foreign import unreadObjectPropertyP "function unreadObjectPropertyP(node) { return node; }" :: { kind :: String, key :: SMAST, value :: SMAST } -> SMAST
+unreadObjectProperty :: ObjectProperty -> SMAST
 unreadObjectProperty (ObjectProperty p) = unreadObjectPropertyP { kind: unreadObjectPropertyKind p.kind, key: unread p.key, value: unread p.value }
 
 unreadAssignmentOperator :: AssignmentOperator -> String
